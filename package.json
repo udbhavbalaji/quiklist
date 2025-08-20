@@ -1,0 +1,30 @@
+{
+  "name": "tracker-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bin": {
+    "cli": "dist/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@udawg00/logify": "^0.0.7",
+    "arktype": "^2.1.20",
+    "commander": "^14.0.0",
+    "inquirer": "^12.9.1",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.0.17"
+  }
+}

@@ -1,0 +1,83 @@
+import { Command } from "commander";
+import * as path from "path";
+
+import { initListPrompt } from "../lib/prompt";
+import { ListItem, ListMetadata, ListOptions } from "../types/list";
+import { err, ok } from "neverthrow";
+import { createDir, saveData, saveMetadata } from "../lib/file-io";
+import logger from "../lib/logger";
+
+export const initializeList = async (defaultListFlag: boolean) => {
+  let finalListOptions: ListOptions;
+
+  const defaultListOptions: ListOptions = {
+    listName: path.dirname(process.cwd()),
+    appDir: path.join(process.cwd(), ".quiklist"),
+    deleteOnDone: false,
+    priorityStyle: "!/!!/!!!",
+  };
+
+  if (defaultListFlag) {
+    const initListRes = await initListPrompt(defaultListOptions);
+
+    if (initListRes.isErr()) {
+      return err({
+        ...initListRes.error,
+        location: `${initListRes.error.location} -> initializeList`,
+      });
+    }
+
+    finalListOptions = initListRes.value;
+  } else finalListOptions = defaultListOptions;
+
+  // create the app directory
+  const createAppdirRes = createDir(finalListOptions.appDir);
+
+  if (createAppdirRes.isErr())
+    return err({
+      ...createAppdirRes.error,
+      location: `${createAppdirRes.error.location} -> initializeList`,
+    });
+
+  // create the metadata.json file
+  const metadataFilepath = path.join(finalListOptions.appDir, "metadata.json");
+
+  logger.error(metadataFilepath);
+
+  const listMetadata: ListMetadata = {
+    ...finalListOptions,
+    name: finalListOptions.listName,
+    dataFilepath: path.join(
+      finalListOptions.appDir,
+      `${finalListOptions.listName}.json`,
+    ),
+  };
+
+  const saveMetadataRes = saveMetadata(listMetadata, metadataFilepath);
+
+  if (saveMetadataRes.isErr())
+    return err({
+      ...saveMetadataRes.error,
+      location: saveMetadataRes.error.location,
+    });
+
+  // create the data file
+  const saveDataRes = saveData([], listMetadata.dataFilepath);
+
+  if (saveDataRes.isErr()) {
+    return err({
+      ...saveDataRes.error,
+      location: saveDataRes.error.location,
+    });
+  }
+
+  // update the config file with the mapping of this list and the dir
+
+  return ok();
+};
+
+const initListCommand = new Command("init")
+  .description("Initialize a check-list for the current directory")
+  .option("-y", "Use all default settings.", false);
+
+export default initListCommand;
