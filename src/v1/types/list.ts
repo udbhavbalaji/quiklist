@@ -4,6 +4,8 @@ export type ListMetadata = {
   dataFilepath: string;
   deleteOnDone: boolean;
   priorityStyle: PriorityStyle;
+  // future add-on
+  // deadline: boolean
 };
 
 export const priorities = ["HIGH", "MEDIUM", "LOW"] as const;
@@ -22,15 +24,19 @@ export const PriorityMapping = {};
 export type ListItem = {
   done: boolean;
   item: string;
-  priority?: Priority;
-  deadline?: Date;
+  priority: Priority | undefined;
+  deadline: Date | undefined;
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type InternalListOption = ListItem & { id: string };
 
 export type ListOptions = {
   listName: string;
   appDir: string;
   deleteOnDone: boolean;
   priorityStyle: PriorityStyle;
+  // future add-on
+  // deadline: boolean
 };

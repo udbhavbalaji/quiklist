@@ -1,4 +1,4 @@
-import { DateFormat } from ".";
+import { DateFormat } from "@/types";
 
 export type QLUserInputtedConfig = {
   userName: string;

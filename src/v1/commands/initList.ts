@@ -1,23 +1,30 @@
 import { Command } from "commander";
 import * as path from "path";
 
-import { initListPrompt } from "../lib/prompt";
-import { ListItem, ListMetadata, ListOptions } from "../types/list";
+import { initListPrompt } from "@/lib/prompt";
+import { ListMetadata, ListOptions } from "@/types/list";
 import { err, ok } from "neverthrow";
-import { createDir, saveData, saveMetadata } from "../lib/file-io";
-import logger from "../lib/logger";
+import { createDir, saveConfig, saveData, saveMetadata } from "@/lib/file-io";
+import logger from "@/lib/logger";
+import { QLCompleteConfig } from "@/types/config";
 
-export const initializeList = async (defaultListFlag: boolean) => {
+export const initializeList = async (
+  defaultListFlag: boolean,
+  config: QLCompleteConfig,
+  configFilepath: string,
+) => {
   let finalListOptions: ListOptions;
 
+  const currentDirpathStems = process.cwd().split(path.sep);
+
   const defaultListOptions: ListOptions = {
-    listName: path.dirname(process.cwd()),
+    listName: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
     deleteOnDone: false,
     priorityStyle: "!/!!/!!!",
   };
 
-  if (defaultListFlag) {
+  if (!defaultListFlag) {
     const initListRes = await initListPrompt(defaultListOptions);
 
     if (initListRes.isErr()) {
@@ -45,12 +52,13 @@ export const initializeList = async (defaultListFlag: boolean) => {
   logger.error(metadataFilepath);
 
   const listMetadata: ListMetadata = {
-    ...finalListOptions,
     name: finalListOptions.listName,
     dataFilepath: path.join(
       finalListOptions.appDir,
       `${finalListOptions.listName}.json`,
     ),
+    deleteOnDone: finalListOptions.deleteOnDone,
+    priorityStyle: finalListOptions.priorityStyle,
   };
 
   const saveMetadataRes = saveMetadata(listMetadata, metadataFilepath);
@@ -72,6 +80,25 @@ export const initializeList = async (defaultListFlag: boolean) => {
   }
 
   // update the config file with the mapping of this list and the dir
+  // const updatefConfigLists = {
+  //   ...config.lists,
+  //   [listMetadata.name]: finalListOptions.appDir,
+  // };
+
+  const updatedConfig = {
+    ...config,
+    lists: { ...config.lists, [listMetadata.name]: finalListOptions.appDir },
+  };
+
+  const updateConfigRes = saveConfig(updatedConfig, configFilepath);
+
+  if (updateConfigRes.isErr())
+    return err({
+      ...updateConfigRes.error,
+      location: updateConfigRes.error.location,
+    });
+
+  logger.info("list created");
 
   return ok();
 };

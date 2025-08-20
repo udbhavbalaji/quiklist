@@ -1,12 +1,14 @@
 import { input, select, confirm } from "@inquirer/prompts";
 import { LogLevel } from "@udawg00/logify";
-import logger from "./logger";
 import { err, ok } from "neverthrow";
-import { QLUserInputtedConfig } from "../types/config";
-import { date_formats } from "../types";
-import { ListOptions } from "../types/list";
-import { pathValidator } from "./validator";
-import { priority_styles } from "../types/list";
+import { select as multiSelect } from "inquirer-select-pro";
+
+import logger from "./logger";
+import { QLUserInputtedConfig } from "@/types/config";
+import { date_formats } from "@/types";
+import { InternalListOption, ListItem, ListOptions } from "@/types/list";
+import { pathValidator } from "@/lib/validator";
+import { priority_styles } from "@/types/list";
 
 const handlePromptError = (error: any, fnName: string) => {
   if (error instanceof Error && error.name === "ExitPromptError") {
@@ -18,6 +20,26 @@ const handlePromptError = (error: any, fnName: string) => {
       location: fnName,
       messageLevel: "error" as LogLevel,
     });
+};
+
+export const markItemsPrompt = async (listOptions: InternalListOption[]) => {
+  try {
+    // let selectedItemIds: string[];
+    const selectedItems = await multiSelect({
+      message: "Mark items as done:",
+      options: listOptions.map((option) => {
+        return {
+          value: option,
+          name: option.item,
+        };
+      }),
+      equals: (a, b) => a.id === b.id,
+    });
+    const selectedItemStr = selectedItems.map((item) => item.id);
+    return ok(selectedItemStr);
+  } catch (error) {
+    return handlePromptError(error, "markItemsPrompt");
+  }
 };
 
 export const initListPrompt = async (defaultListOptions: ListOptions) => {
@@ -32,11 +54,6 @@ export const initListPrompt = async (defaultListOptions: ListOptions) => {
       default: defaultListOptions.appDir,
       validate: pathValidator,
     });
-
-    // const includePriority = await confirm({
-    //   message: "Should this list include priorities?: ",
-    //   default: defaultListOptions.includePriority,
-    // });
 
     const deleteOnDone = await confirm({
       message: "Should we delete items as you're done with them?",

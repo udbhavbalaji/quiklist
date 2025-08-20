@@ -1,20 +1,26 @@
 {
-  "name": "tracker-test",
+  "name": "quiklist",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "build": "tsc"
+    "build": "tsc && tsc-alias && ts-add-js-extension --dir=dist",
+    "tc": "tsc --noEmit",
+    "add:ext": "ts-add-js-extension --dir=dist",
+    "tsup": "tsup ./bin/quiklist.ts --format cjs --target node20 --out-dir dist --clean"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bin": {
-    "cli": "dist/cli.js"
+    "quiklist": "dist/bin/quiklist.js"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
+    "ts-add-js-extension": "^1.6.6",
+    "tsc-alias": "^1.8.16",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
@@ -24,6 +30,7 @@
     "arktype": "^2.1.20",
     "commander": "^14.0.0",
     "inquirer": "^12.9.1",
+    "inquirer-select-pro": "^1.0.0-alpha.9",
     "neverthrow": "^8.2.0",
     "zod": "^4.0.17"
   }

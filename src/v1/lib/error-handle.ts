@@ -1,6 +1,7 @@
 import { Result } from "neverthrow";
-import { QLError } from "../types";
-import logger from "./logger";
+
+import { QLError } from "@/types";
+import logger from "@/lib/logger";
 
 export const errorHandler = <ResultType>(
   fnResult: Result<ResultType, QLError>,

@@ -1,19 +1,17 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
-import { QLCompleteConfig } from "../types/config";
 import { err, ok, Result } from "neverthrow";
+import { LogLevel } from "@udawg00/logify";
+
+import { QLCompleteConfig } from "@/types/config";
 import {
   FileInputFunction,
   FileInputTypes,
   FileOutputFunction,
-} from "../types/file-io";
-import { ArgsOf, QLError } from "../types";
-import { LogLevel } from "@udawg00/logify";
-import Stream from "stream";
-import { ListItem, ListMetadata } from "../types/list";
-import { file } from "zod";
-import logger from "./logger";
+} from "@/types/file-io";
+import { ArgsOf, QLError } from "@/types";
+import { ListItem, ListMetadata } from "@/types/list";
+import logger from "@/lib/logger";
 
 const handleIOError = (error: any, fnName: string) => {
   let message: string;
@@ -33,7 +31,29 @@ const handleIOError = (error: any, fnName: string) => {
   });
 };
 
-export const loadMetadata = () => { };
+export const loadData = (filepath: string) => {
+  if (fs.existsSync(filepath)) {
+    const data = readFile<ListItem[]>(filepath);
+    return ok(data);
+  }
+  return err({
+    message: "data_file_not_found",
+    location: "loadData",
+    MessageLevel: "warn" as LogLevel,
+  });
+};
+
+export const loadMetadata = (filepath: string) => {
+  if (fs.existsSync(filepath)) {
+    const metadata = readFile<ListMetadata>(filepath);
+    return ok(metadata);
+  }
+  return err({
+    message: "metadata_not_found",
+    location: "loadMetadata",
+    MessageLevel: "warn" as LogLevel,
+  });
+};
 
 export const loadConfig = (configFilepath: string) => {
   // const configFilepath = path.join(configDir, "config.json");
