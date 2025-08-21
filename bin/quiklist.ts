@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import launchQuiklist from "../src/index";
+import launchQuiklist from "@/index";
 
 const quikList = launchQuiklist();
 

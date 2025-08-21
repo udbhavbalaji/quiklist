@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev": "npx tsx bin/quiklist.ts",
     "test": "vitest",
     "build": "tsc && tsc-alias && ts-add-js-extension --dir=dist",
     "tc": "tsc --noEmit",
@@ -16,6 +17,9 @@
   "bin": {
     "quiklist": "dist/bin/quiklist.js"
   },
+  "files": [
+    "dist/"
+  ],
   "devDependencies": {
     "@types/node": "^24.2.1",
     "ts-add-js-extension": "^1.6.6",

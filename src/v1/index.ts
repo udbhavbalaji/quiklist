@@ -11,6 +11,7 @@ import { isProcessWithinCreatedList } from "@/lib/predicate";
 import initListCommand, { initializeList } from "@/commands/initList";
 import addCommand, { addToList } from "@/commands/add";
 import markCommand, { markItemAsDone } from "@/commands/mark";
+import showCommand from "./commands/show";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -71,9 +72,15 @@ const launchQuiklist = () => {
         asyncErrorHandler(markItemAsDone(metadata.dataFilepath)),
       );
 
+      // showCommand
+      showCommand.action((options) =>
+        errorHandler(showItems(metadata.dataFilepath, options.unchecked)),
+      );
+
       // // binding the commands to the app
       app.addCommand(addCommand);
       app.addCommand(markCommand);
+      app.addCommand(showCommand);
       logger.info("Found app config folder");
     }
   }

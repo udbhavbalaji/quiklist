@@ -30,10 +30,10 @@ export const markItemAsDone = async (datasetFilepath: string) => {
   const updatedItems = itemOptions.map((item) => {
     if (markedItemsRes.value.includes(item.id)) {
       const { id, ...listItem } = item;
-      return { ...listItem, done: true };
+      return { ...listItem, done: true, updatedAt: new Date() };
     } else {
       const { id, ...listItem } = item;
-      return listItem;
+      return { ...listItem, updatedAt: new Date() };
     }
   });
 

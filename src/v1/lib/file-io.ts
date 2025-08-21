@@ -10,7 +10,12 @@ import {
   FileOutputFunction,
 } from "@/types/file-io";
 import { ArgsOf, QLError } from "@/types";
-import { ListItem, ListMetadata } from "@/types/list";
+import {
+  InternalListItem,
+  ListItem,
+  ListMetadata,
+  Priority,
+} from "@/types/list";
 import logger from "@/lib/logger";
 
 const handleIOError = (error: any, fnName: string) => {
@@ -33,8 +38,17 @@ const handleIOError = (error: any, fnName: string) => {
 
 export const loadData = (filepath: string) => {
   if (fs.existsSync(filepath)) {
-    const data = readFile<ListItem[]>(filepath);
-    return ok(data);
+    const data = readFile<InternalListItem[]>(filepath);
+    const transformedData = data.map((item) => {
+      return {
+        ...item,
+        priority: item.priority as Priority,
+        createdAt: new Date(item.createdAt),
+        updatedAt: new Date(item.updatedAt),
+        deadline: item.deadline ? new Date(item.deadline) : undefined,
+      };
+    });
+    return ok(transformedData);
   }
   return err({
     message: "data_file_not_found",

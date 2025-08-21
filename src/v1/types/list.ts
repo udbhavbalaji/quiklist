@@ -30,6 +30,15 @@ export type ListItem = {
   updatedAt: Date;
 };
 
+export type InternalListItem = {
+  done: boolean;
+  item: string;
+  priority: Priority | undefined;
+  deadline: string | undefined;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type InternalListOption = ListItem & { id: string };
 
 export type ListOptions = {
