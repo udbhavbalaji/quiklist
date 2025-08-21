@@ -142,3 +142,4 @@ vite.config.ts.timestamp-*
 test.ts 
 *.txt
 .quiklist
+.DS_Store
