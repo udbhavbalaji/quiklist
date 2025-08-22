@@ -7,16 +7,16 @@ import { err, ok } from "neverthrow";
 export const addToList = (
   dataFilepath: string,
   itemText: string,
-  priority?: Priority,
+  priority: Priority,
   deadline?: string,
 ) => {
   const item: ListItem = {
     done: false,
     item: itemText,
-    priority: priority ?? undefined,
-    deadline: deadline ? new Date(deadline) : undefined,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    priority: priority,
+    deadline: deadline ? new Date(deadline).toISOString() : undefined,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   const currentDataRes = loadData(dataFilepath);

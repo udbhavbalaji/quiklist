@@ -11,12 +11,14 @@ import { isProcessWithinCreatedList } from "@/lib/predicate";
 import initListCommand, { initializeList } from "@/commands/initList";
 import addCommand, { addToList } from "@/commands/add";
 import markCommand, { markItemAsDone } from "@/commands/mark";
-import showCommand from "./commands/show";
+import showCommand, { showItems } from "@/commands/show";
+import { Priority } from "@/types/list";
+import deleteCommand, { deleteItemFromList } from "@/commands/delete";
+import editCommand, { editItemInList } from "./commands/edit";
+import { renderDate } from "./lib/render";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
-
-console.log("entering file");
 
 const launchQuiklist = () => {
   logger.debug("coming into function at least");
@@ -56,13 +58,38 @@ const launchQuiklist = () => {
       // // extra command config
       // addCommand
       if (metadata.priorityStyle !== "none") {
-        addCommand.option("-p, [priority]", "specify the priority level");
+        addCommand.option(
+          "--md",
+          "Specify that the task is 'MEDIUM' priority.",
+        );
+        addCommand.option(
+          "--high",
+          "Specify that the task is 'HIGH' priority.",
+        );
+        addCommand.option(
+          "-d, --deadline [deadline]",
+          `Specify the task's deadline in your selected format. ${config.dateFormat}`,
+        );
       }
       addCommand
         .argument("[item_text...]", "Text for the list item")
         .action((item_text: string[], options) => {
+          const priority = options.md
+            ? "MEDIUM"
+            : options.high
+              ? "HIGH"
+              : ("LOW" as Priority);
+          console.log(options);
+          const deadline = options.deadline
+            ? renderDate(options.deadline, config.dateFormat, true)
+            : undefined;
           return errorHandler(
-            addToList(metadata.dataFilepath, item_text.join(" "), options.p),
+            addToList(
+              metadata.dataFilepath,
+              item_text.join(" "),
+              priority,
+              deadline,
+            ),
           );
         })
         .description(`Add item to ${metadata.name}`);
@@ -74,13 +101,36 @@ const launchQuiklist = () => {
 
       // showCommand
       showCommand.action((options) =>
-        errorHandler(showItems(metadata.dataFilepath, options.unchecked)),
+        errorHandler(
+          showItems(
+            metadata.dataFilepath,
+            options.unchecked,
+            config.dateFormat,
+            metadata.priorityStyle,
+            "none",
+            "descending",
+          ),
+        ),
+      );
+
+      // deleteCommand
+      deleteCommand.action(async () =>
+        asyncErrorHandler(deleteItemFromList(metadata.dataFilepath)),
+      );
+
+      // editCommand
+      editCommand.action(async () =>
+        asyncErrorHandler(
+          editItemInList(metadata.dataFilepath, config.dateFormat),
+        ),
       );
 
       // // binding the commands to the app
       app.addCommand(addCommand);
       app.addCommand(markCommand);
       app.addCommand(showCommand);
+      app.addCommand(deleteCommand);
+      app.addCommand(editCommand);
       logger.info("Found app config folder");
     }
   }
@@ -88,5 +138,4 @@ const launchQuiklist = () => {
   return app;
 };
 
-console.log("leaving file");
 export default launchQuiklist;

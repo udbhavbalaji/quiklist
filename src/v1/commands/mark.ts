@@ -1,6 +1,8 @@
 import { loadData, saveData } from "@/lib/file-io";
+import { splitListItems } from "@/lib/list";
 import logger from "@/lib/logger";
-import { markItemsPrompt } from "@/lib/prompt";
+import { itemsPrompt } from "@/lib/prompt";
+import { InternalListOption } from "@/types/list";
 import { Command } from "commander";
 import { err, ok } from "neverthrow";
 
@@ -14,38 +16,57 @@ export const markItemAsDone = async (datasetFilepath: string) => {
     });
 
   const itemOptions = itemsRes.value.map((item, idx) => {
-    return { ...item, id: `${item.item}_${idx}` };
+    return { ...item, id: `${item.done}_${item.item}_${idx}` };
   });
 
-  const unmarkedItems = itemOptions.filter((item) => !item.done);
+  const {
+    checkedItems: checkedItemOptions,
+    uncheckedItems: uncheckedItemOptions,
+  } = splitListItems(itemOptions);
 
-  const markedItemsRes = await markItemsPrompt(unmarkedItems);
+  const markPromptRes = await itemsPrompt(
+    checkedItemOptions,
+    uncheckedItemOptions,
+    "Mark/Unmark items:",
+    false,
+    false,
+    "mark",
+  );
 
-  if (markedItemsRes.isErr())
+  if (markPromptRes.isErr())
     return err({
-      ...markedItemsRes.error,
-      location: `${markedItemsRes.error.location} -> markItemAsDone`,
+      ...markPromptRes.error,
+      location: `${markPromptRes.error.location} -> deleteItemFromList`,
     });
 
-  const updatedItems = itemOptions.map((item) => {
-    if (markedItemsRes.value.includes(item.id)) {
-      const { id, ...listItem } = item;
-      return { ...listItem, done: true, updatedAt: new Date() };
-    } else {
-      const { id, ...listItem } = item;
-      return { ...listItem, updatedAt: new Date() };
-    }
+  let updatedListOptions: InternalListOption[] = itemOptions;
+
+  console.log(markPromptRes.value);
+
+  if (markPromptRes.value.length > 0) {
+    updatedListOptions = itemOptions.map((item) => {
+      if (markPromptRes.value.includes(item.id)) {
+        console.log(item.id);
+        return { ...item, done: true };
+      } else return { ...item, done: false };
+    });
+  }
+
+  const updatedList = updatedListOptions.map((item) => {
+    const { id, ...mainItem } = item;
+    return mainItem;
   });
 
-  const updateItemsRes = saveData(updatedItems, datasetFilepath);
+  const saveDataRes = saveData(updatedList, datasetFilepath);
 
-  if (updateItemsRes.isErr())
+  if (saveDataRes.isErr())
     return err({
-      ...updateItemsRes.error,
-      location: `${updateItemsRes.error.location} -> markItemAsDone`,
+      ...saveDataRes.error,
+      location: `${saveDataRes.error.location} -> deleteFromList`,
     });
 
-  logger.info(`Marked ${markedItemsRes.value.length} items as done.`);
+  if (markPromptRes.value.length > 0) logger.info("Deleted item!");
+  else logger.info("Not deleting any items.");
 
   return ok();
 };

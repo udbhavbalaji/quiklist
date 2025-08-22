@@ -21,7 +21,10 @@ export const initializeList = async (
     listName: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
     deleteOnDone: false,
-    priorityStyle: "!/!!/!!!",
+    priorityStyle: "none",
+    // priority add-ons
+    // sortCriteria: "none",
+    // sortOrder: "descending",
   };
 
   if (!defaultListFlag) {
@@ -80,11 +83,6 @@ export const initializeList = async (
   }
 
   // update the config file with the mapping of this list and the dir
-  // const updatefConfigLists = {
-  //   ...config.lists,
-  //   [listMetadata.name]: finalListOptions.appDir,
-  // };
-
   const updatedConfig = {
     ...config,
     lists: { ...config.lists, [listMetadata.name]: finalListOptions.appDir },

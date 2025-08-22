@@ -45,15 +45,6 @@ export const initGlobalConfig = async (configFilepath: string) => {
       location: `${saveConfigResult.error.location} -> configureApp`,
     });
   }
-  //
-  // const createAppDirResult = createDir(finalConfig.appDir);
-  //
-  // if (createAppDirResult.isErr()) {
-  //   return err({
-  //     ...createAppDirResult.error,
-  //     location: `${createAppDirResult.error.location} -> configureApp`,
-  //   });
-  // }
 
   logger.info(
     "Quiktrack configuration complete! Use quiktrack [-h|--help] to view available commands and options.",

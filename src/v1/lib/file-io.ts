@@ -10,12 +10,7 @@ import {
   FileOutputFunction,
 } from "@/types/file-io";
 import { ArgsOf, QLError } from "@/types";
-import {
-  InternalListItem,
-  ListItem,
-  ListMetadata,
-  Priority,
-} from "@/types/list";
+import { ListItem, ListMetadata, Priority } from "@/types/list";
 import logger from "@/lib/logger";
 
 const handleIOError = (error: any, fnName: string) => {
@@ -38,17 +33,8 @@ const handleIOError = (error: any, fnName: string) => {
 
 export const loadData = (filepath: string) => {
   if (fs.existsSync(filepath)) {
-    const data = readFile<InternalListItem[]>(filepath);
-    const transformedData = data.map((item) => {
-      return {
-        ...item,
-        priority: item.priority as Priority,
-        createdAt: new Date(item.createdAt),
-        updatedAt: new Date(item.updatedAt),
-        deadline: item.deadline ? new Date(item.deadline) : undefined,
-      };
-    });
-    return ok(transformedData);
+    const data = readFile<ListItem[]>(filepath);
+    return ok(data);
   }
   return err({
     message: "data_file_not_found",
@@ -70,8 +56,6 @@ export const loadMetadata = (filepath: string) => {
 };
 
 export const loadConfig = (configFilepath: string) => {
-  // const configFilepath = path.join(configDir, "config.json");
-
   if (fs.existsSync(configFilepath)) {
     const config = readFile<QLCompleteConfig>(configFilepath);
     return ok(config);
@@ -114,8 +98,6 @@ export const saveConfig = (
   config: QLCompleteConfig,
   configFilepath: string,
 ) => {
-  // const configFilepath = path.join(configDir, "config.json");
-
   try {
     fs.appendFileSync(configFilepath, JSON.stringify(config, null, 2), {
       flag: "w",

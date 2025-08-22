@@ -1,6 +1,6 @@
 {
   "name": "quiklist",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "quiklist": "dist/bin/quiklist.js"
+    "quiklist": "./dist/bin/quiklist.js"
   },
   "files": [
     "dist/"
@@ -31,10 +31,11 @@
   },
   "dependencies": {
     "@udawg00/logify": "^0.0.7",
-    "arktype": "^2.1.20",
     "commander": "^14.0.0",
     "inquirer": "^12.9.1",
+    "inquirer-honshin-select": "^0.0.4",
     "inquirer-select-pro": "^1.0.0-alpha.9",
+    "inquirer-toggle": "^1.0.1",
     "neverthrow": "^8.2.0",
     "zod": "^4.0.17"
   }
