@@ -47,7 +47,7 @@ export const initGlobalConfig = async (configFilepath: string) => {
   }
 
   logger.info(
-    "Quiktrack configuration complete! Use quiktrack [-h|--help] to view available commands and options.",
+    "Quiklist configuration complete! Use quiklist [-h|--help] to view available commands and options.",
   );
 
   return ok();

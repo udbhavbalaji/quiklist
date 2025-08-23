@@ -20,13 +20,16 @@ import { renderDate } from "./lib/render";
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
 
-const launchQuiklist = () => {
-  logger.debug("coming into function at least");
+const launchQuiklist = (appVersion: string) => {
+  // create the app
   const app = new Command("quiklist")
     .description("The quickest command line checklist.")
-    .version("0.0.1");
+    .version(appVersion);
 
+  // check if global config exists
   if (!fs.existsSync(configFilepath)) {
+    // if not, add option flag to start the process. That will be the only option available
+    //  todo: can be made so that initiaiting any command begins the process if global config not found
     app
       .option("-i, --init", "Create quiklist's global configuration.", false)
       .action(async (options) =>
@@ -42,22 +45,24 @@ const launchQuiklist = () => {
     // check the current process path and see if there's a list linked to that?
     const inChildFolder = isProcessWithinCreatedList(config.lists);
 
-    // if not, only show the init command to initialize the list in the current config
     if (inChildFolder.isErr()) {
+      // if not, only show the init command to initialize the list in the current config
       initListCommand.action(async (options) =>
         asyncErrorHandler(initializeList(options.d, config, configFilepath)),
       );
       app.addCommand(initListCommand);
-    }
-    // if there is, load in those metadata
-    else {
+    } else {
+      // if there is, load in those metadata
       const metadata = errorHandler(
         loadMetadata(path.join(inChildFolder.value.value, "metadata.json")),
       );
 
       // // extra command config
       // addCommand
+      addCommand.description(`Add item to ${metadata.name}`);
+
       if (metadata.priorityStyle !== "none") {
+        // note: default priority level is "LOW"
         addCommand.option(
           "--md",
           "Specify that the task is 'MEDIUM' priority.",
@@ -79,7 +84,6 @@ const launchQuiklist = () => {
             : options.high
               ? "HIGH"
               : ("LOW" as Priority);
-          console.log(options);
           const deadline = options.deadline
             ? renderDate(options.deadline, config.dateFormat, true)
             : undefined;
@@ -91,8 +95,7 @@ const launchQuiklist = () => {
               deadline,
             ),
           );
-        })
-        .description(`Add item to ${metadata.name}`);
+        });
 
       // markCommand
       markCommand.action(async () =>
@@ -131,10 +134,8 @@ const launchQuiklist = () => {
       app.addCommand(showCommand);
       app.addCommand(deleteCommand);
       app.addCommand(editCommand);
-      logger.info("Found app config folder");
     }
   }
-  logger.info("done");
   return app;
 };
 

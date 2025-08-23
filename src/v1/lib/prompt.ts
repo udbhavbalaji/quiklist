@@ -1,5 +1,5 @@
 import { input, select, confirm, editor } from "@inquirer/prompts";
-import { LogLevel } from "@udawg00/logify";
+import { LogLevel } from "@/types/logger";
 import { err, ok } from "neverthrow";
 import {
   select as multiSelect,

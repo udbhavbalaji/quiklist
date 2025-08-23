@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { err, ok, Result } from "neverthrow";
-import { LogLevel } from "@udawg00/logify";
+import { LogLevel } from "@/types/logger";
 
 import { QLCompleteConfig } from "@/types/config";
 import {
@@ -20,7 +20,6 @@ const handleIOError = (error: any, fnName: string) => {
       message =
         "Please use 'sudo' before your command as this command requires extra permissions.";
     } else {
-      console.log("coming here lololol");
       message = error.message;
     }
   } else message = "Uh oh, something went horribly wrong :(";

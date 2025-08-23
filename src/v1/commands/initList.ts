@@ -1,9 +1,9 @@
 import { Command } from "commander";
 import * as path from "path";
+import { err, ok } from "neverthrow";
 
 import { initListPrompt } from "@/lib/prompt";
 import { ListMetadata, ListOptions } from "@/types/list";
-import { err, ok } from "neverthrow";
 import { createDir, saveConfig, saveData, saveMetadata } from "@/lib/file-io";
 import logger from "@/lib/logger";
 import { QLCompleteConfig } from "@/types/config";
@@ -22,6 +22,7 @@ export const initializeList = async (
     appDir: path.join(process.cwd(), ".quiklist"),
     deleteOnDone: false,
     priorityStyle: "none",
+
     // priority add-ons
     // sortCriteria: "none",
     // sortOrder: "descending",
@@ -51,8 +52,6 @@ export const initializeList = async (
 
   // create the metadata.json file
   const metadataFilepath = path.join(finalListOptions.appDir, "metadata.json");
-
-  logger.error(metadataFilepath);
 
   const listMetadata: ListMetadata = {
     name: finalListOptions.listName,
@@ -96,7 +95,7 @@ export const initializeList = async (
       location: updateConfigRes.error.location,
     });
 
-  logger.info("list created");
+  logger.info(`Created quiklist '${listMetadata.name}'!`);
 
   return ok();
 };

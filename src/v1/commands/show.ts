@@ -3,7 +3,7 @@ import { err, ok } from "neverthrow";
 import chalk from "chalk";
 
 import { loadData } from "@/lib/file-io";
-import logger from "@/lib/logger";
+import logger, { INFO_HEX, PANIC_HEX } from "@/lib/logger";
 import { renderDate } from "@/lib/render";
 import {
   ListItem,
@@ -62,16 +62,18 @@ export const showItems = (
     }
   }
 
-  if (!unchecked) {
-    // console.log(chalk.hex("#72e00b").italic("\n -- COMPLETED -- "));
-    console.log("\n -- COMPLETED -- ");
-    checkedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
-  }
-
   // console.log(chalk.hex("#f7ac20").italic("\n -- TODO -- "));
 
-  console.log("\n -- TODO -- ");
+  // console.log("\n -- TODO -- ");
+  logger.hex(PANIC_HEX, "\n -- TODO --");
   uncheckedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
+
+  if (!unchecked) {
+    // console.log(chalk.hex("#72e00b").italic("\n -- COMPLETED -- "));
+    // console.log("\n -- COMPLETED -- ");
+    logger.hex(INFO_HEX, "\n -- COMPLETED -- ");
+    checkedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
+  }
 
   logger.warn("There are no more unchecked items on your list!");
   return ok();
@@ -82,13 +84,13 @@ const renderItem = (
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
 ) => {
-  let output = `[${item.done ? "X" : " "}] ${item.priority ? ` ${styleMapping[priorityStyle][item.priority]} ` : ""} ${item.item} :: Added on: ${renderDate(item.createdAt, dateFormat)}${item.deadline ? `    {Deadline: ${renderDate(item.deadline, dateFormat, true)}}` : ""}`;
+  let output = `[${item.done ? "X" : " "}] ${priorityStyle !== "none" ? ` ${styleMapping[priorityStyle][item.priority]} ` : ""} ${item.item} :: Added on: ${renderDate(item.createdAt, dateFormat)}${item.deadline ? `    {Deadline: ${renderDate(item.deadline, dateFormat, true)}}` : ""}`;
 
   console.log(
-    output,
-    // item.done
-    //   ? chalk.green.italic(output)
-    //   : chalk.hex("#f7ac20").italic(output),
+    // output,
+    item.done
+      ? chalk.hex(INFO_HEX).italic(output)
+      : chalk.hex(PANIC_HEX).italic(output),
   );
 };
 

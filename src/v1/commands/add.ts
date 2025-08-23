@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { ListItem, Priority } from "@/types/list";
 import { loadData, saveData } from "@/lib/file-io";
 import { err, ok } from "neverthrow";
+import logger from "@/lib/logger";
 
 export const addToList = (
   dataFilepath: string,
@@ -24,7 +25,7 @@ export const addToList = (
   if (currentDataRes.isErr())
     return err({
       ...currentDataRes.error,
-      location: currentDataRes.error.location,
+      location: `${currentDataRes.error.location} -> addToList`,
     });
 
   const data = currentDataRes.value;
@@ -36,8 +37,10 @@ export const addToList = (
   if (writeDataRes.isErr())
     return err({
       ...writeDataRes.error,
-      location: writeDataRes.error.location,
+      location: `${writeDataRes.error.location} -> addToList`,
     });
+
+  logger.info("Item added!");
   return ok();
 };
 
