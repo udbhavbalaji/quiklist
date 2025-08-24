@@ -17,6 +17,7 @@ import deleteCommand, { deleteItemFromList } from "@/commands/delete";
 import editCommand, { editItemInList } from "./commands/edit";
 import { renderDate } from "./lib/render";
 import { DateFormat } from "./types";
+import { err } from "neverthrow";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -47,7 +48,7 @@ const launchQuiklist = (appVersion: string) => {
     const inChildFolder = isProcessWithinCreatedList(config.lists);
 
     if (inChildFolder.isErr()) {
-      logger.error(inChildFolder.error.message);
+      logger.debug(inChildFolder.error.message);
       // if not, only show the init command to initialize the list in the current config
       initListCommand.action(async (options) =>
         asyncErrorHandler(initializeList(options.d, config, configFilepath)),
@@ -81,6 +82,15 @@ const launchQuiklist = (appVersion: string) => {
       addCommand
         .argument("[item_text...]", "Text for the list item")
         .action((item_text: string[], options) => {
+          const itemText = item_text.join(" ");
+          if (itemText === "")
+            return errorHandler(
+              err({
+                message: "text_content_empty",
+                location: "addCommandHandler",
+                messageLevel: "panic",
+              }),
+            );
           const priority = options.md
             ? ("MEDIUM" as Priority)
             : options.high

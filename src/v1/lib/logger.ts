@@ -16,7 +16,7 @@ const logger = {
     console.log(chalk.hex(INFO_HEX).italic(getFormattedMessage(message)));
   },
   debug: (message: string) => {
-    if (process.env.NODE_ENV && process.env.NODE_ENV === "production") return;
+    if (process.env.NODE_ENV !== "development") return;
     console.log(chalk.cyan.italic(getFormattedMessage(message)));
   },
   warn: (message: string) => {

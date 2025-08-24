@@ -47,6 +47,15 @@ export const markItemAsDone = async (datasetFilepath: string) => {
         return { ...item, done: true };
       } else return { ...item, done: false };
     });
+  } else if (
+    markPromptRes.value.length === 0 &&
+    checkedItemOptions.length > 0
+  ) {
+    updatedListOptions = itemOptions.map((item) => {
+      if (markPromptRes.value.includes(item.id)) {
+        return { ...item, done: true };
+      } else return { ...item, done: false };
+    });
   }
 
   const updatedList = updatedListOptions.map((item) => {
@@ -64,6 +73,8 @@ export const markItemAsDone = async (datasetFilepath: string) => {
 
   if (markPromptRes.value.length > 0)
     logger.info(`Updated ${markPromptRes.value.length} items.`);
+  else if (markPromptRes.value.length === 0 && checkedItemOptions.length > 0)
+    logger.info(`Updated ${checkedItemOptions.length} items.`);
   else logger.warn("Not marking any items.");
 
   return ok();

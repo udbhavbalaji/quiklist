@@ -1,16 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
-import { err, ok, Result } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { LogLevel } from "@/types/logger";
 
 import { QLCompleteConfig } from "@/types/config";
-import {
-  FileInputFunction,
-  FileInputTypes,
-  FileOutputFunction,
-} from "@/types/file-io";
-import { ArgsOf, QLError } from "@/types";
-import { ListItem, ListMetadata, Priority } from "@/types/list";
+import { FileInputTypes } from "@/types/file-io";
+import { ListItem, ListMetadata } from "@/types/list";
 import logger from "@/lib/logger";
 
 const handleIOError = (error: any, fnName: string) => {

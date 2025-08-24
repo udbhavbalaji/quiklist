@@ -4,21 +4,31 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "npx tsx bin/quiklist.ts",
+    "dev": "NODE_ENV=development npx tsx bin/quiklist.ts",
+    "preview": "NODE_ENV=development node dist/bin/quiklist.js",
     "test": "vitest",
     "build": "tsc && tsc-alias && ts-add-js-extension --dir=dist",
-    "tc": "tsc --noEmit",
-    "add:ext": "ts-add-js-extension --dir=dist",
-    "tsup": "tsup ./bin/quiklist.ts --format cjs --target node20 --out-dir dist --clean"
+    "postbuild": "node postbuild.js",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["checklist", "command-line", "app"],
+  "author": "Udbhav Balaji",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udbhavbalaji/quiklist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/udbhavbalaji/quiklist/issues"
+  },
+  "homepage": "https://github.com/udbhavbalaji/quiklist/#readme",
   "bin": {
     "quiklist": "./dist/bin/quiklist.js"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "LICENSE",
+    "README.md"
   ],
   "devDependencies": {
     "@types/node": "^24.2.1",

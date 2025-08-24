@@ -99,9 +99,11 @@ export const editItemInList = async (
         location: `${updatedItemRes.error.location} -> editItemInList`,
       });
 
-    updatedDeadline = new Date(
-      renderDate(updatedItemRes.value, dateFormat),
-    ).toISOString();
+    if (updatedItemRes.value === "") updatedDeadline = undefined;
+    else
+      updatedDeadline = new Date(
+        renderDate(updatedItemRes.value, dateFormat),
+      ).toISOString();
     successMessage = "Successfully edited item's deadline!";
   }
 
@@ -128,45 +130,6 @@ export const editItemInList = async (
     return err({ ...saveDataRes.error, location: saveDataRes.error.location });
 
   logger.info(successMessage);
-
-  // switch (editPromptRes.value.action) {
-  //   case "item": {
-  //     const updatedItemRes = await getUpdatedItemText(selectedItem);
-  //
-  //     if (updatedItemRes.isErr())
-  //       return err({
-  //         ...updatedItemRes.error,
-  //         location: `${updatedItemRes.error.location} -> editItemInList`,
-  //       });
-  //
-  //     updatedItemText = updatedItemRes.value;
-  //   }
-  //   case "priority": {
-  //     const updatedItemRes = await getUpdatedItemPriority(selectedItem);
-  //
-  //     if (updatedItemRes.isErr())
-  //       return err({
-  //         ...updatedItemRes.error,
-  //         location: `${updatedItemRes.error.location} -> editItemInList`,
-  //       });
-  //
-  //     updatedPriority = updatedItemRes.value;
-  //   }
-  //   case "deadline": {
-  //     const updatedItemRes = await getUpdatedItemDeadline(
-  //       selectedItem,
-  //       dateFormat,
-  //     );
-  //
-  //     if (updatedItemRes.isErr())
-  //       return err({
-  //         ...updatedItemRes.error,
-  //         location: `${updatedItemRes.error.location} -> editItemInList`,
-  //       });
-  //
-  //     updatedDeadline = updatedItemRes.value;
-  //   }
-  // }
 
   return ok();
 };

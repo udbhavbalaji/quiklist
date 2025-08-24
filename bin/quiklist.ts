@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-import launchQuiklist from "@/index";
 import { createRequire } from "module";
 
+import launchQuiklist from "@/index";
+
 const require = createRequire(import.meta.url);
+
 const { version } = require("../package.json");
 
 const quikList = launchQuiklist(version);
