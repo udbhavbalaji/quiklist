@@ -16,7 +16,7 @@ export const markItemAsDone = async (datasetFilepath: string) => {
     });
 
   const itemOptions = itemsRes.value.map((item, idx) => {
-    return { ...item, id: `${item.done}_${item.item}_${idx}` };
+    return { ...item, id: `${item.done}_${item.priority}_${idx}` };
   });
 
   const {
@@ -41,12 +41,9 @@ export const markItemAsDone = async (datasetFilepath: string) => {
 
   let updatedListOptions: InternalListOption[] = itemOptions;
 
-  console.log(markPromptRes.value);
-
   if (markPromptRes.value.length > 0) {
     updatedListOptions = itemOptions.map((item) => {
       if (markPromptRes.value.includes(item.id)) {
-        console.log(item.id);
         return { ...item, done: true };
       } else return { ...item, done: false };
     });
@@ -65,8 +62,9 @@ export const markItemAsDone = async (datasetFilepath: string) => {
       location: `${saveDataRes.error.location} -> deleteFromList`,
     });
 
-  if (markPromptRes.value.length > 0) logger.info("Deleted item!");
-  else logger.info("Not deleting any items.");
+  if (markPromptRes.value.length > 0)
+    logger.info(`Updated ${markPromptRes.value.length} items.`);
+  else logger.warn("Not marking any items.");
 
   return ok();
 };

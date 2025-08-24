@@ -1,29 +1,19 @@
 import { input, select, confirm, editor } from "@inquirer/prompts";
 import { LogLevel } from "@/types/logger";
 import { err, ok } from "neverthrow";
-import {
-  select as multiSelect,
-  SelectItem,
-  SelectOption,
-  Separator,
-} from "inquirer-select-pro";
+import { select as multiSelect, Separator } from "inquirer-select-pro";
 import { default as tgl } from "inquirer-toggle";
 import newActionSelect from "inquirer-honshin-select";
 
-import logger from "./logger";
+import logger from "@/lib/logger";
 import { QLUserInputtedConfig } from "@/types/config";
 import { date_formats, DateFormat } from "@/types";
-import {
-  InternalListOption,
-  ListItem,
-  ListOptions,
-  priorities,
-} from "@/types/list";
+import { InternalListOption, ListOptions, priorities } from "@/types/list";
 import { pathValidator } from "@/lib/validator";
 import { priority_styles } from "@/types/list";
-import { renderDate } from "./render";
+import { renderDate } from "@/lib/render";
 
-//@ts-ignore - only works this way: https://github.com/skarahoda/inquirer-toggle/issues/3
+// @ts-ignore - only works this way: https://github.com/skarahoda/inquirer-toggle/issues/3
 const toggle = tgl.default;
 
 const handlePromptError = (error: any, fnName: string) => {
@@ -107,6 +97,7 @@ export const itemsPrompt = async (
   }
 };
 
+// todo: need to handle edge case where user returns empty string
 export const getUpdatedItemDeadline = async (
   item: InternalListOption,
   dateFormat: DateFormat,
@@ -145,14 +136,10 @@ export const getUpdatedItemText = async (item: InternalListOption) => {
     const answer = await editor({
       message: "Make changes to the item",
       default: item.item,
-      // validate: (value) =>
-      //   value === ""
-      //     ? "Cannot remove entire text content from item. You can delete this item using the 'delete'  command"
-      //     : true,
     });
     if (answer === "") {
       logger.error(
-        "Cannot remove entire text content from item. You can delete this item using the 'delete'  command",
+        "Cannot remove entire text content from item. You can delete this item using the 'delete' command",
       );
       return ok(item.item);
     }
@@ -197,67 +184,18 @@ export const editItemPrompt = async (
       name: "Deadline",
       key: "d",
     },
-    // {
-    //   value: "toggle",
-    //   name: "Toggle Check",
-    //   key: "t",
-    // },
   ];
   try {
     const answer = await newActionSelect({
-      // const answer = await actionSelect({
       message: "Choose item and select an action:",
       actions: actions,
       choices: options.map((option) =>
         typeof option === "string" ? new Separator(option) : option,
       ),
-      // choices: listItems.map((item) => {
-      //   return { value: item.id, name: item.item };
-      // }),
     });
     return ok(answer);
   } catch (error) {
     return handlePromptError(error, "editItemPrompt");
-  }
-};
-
-export const deleteItemPrompt = async (listItems: InternalListOption[]) => {
-  try {
-    const itemToDelete = await multiSelect({
-      message: "Delete item:",
-      options: listItems.map((item) => {
-        return {
-          value: item.id,
-          name: item.item,
-        };
-      }),
-      confirmDelete: true,
-      multiple: false,
-      required: true,
-    });
-    return ok(itemToDelete);
-  } catch (error) {
-    return handlePromptError(error, "deleteItemPrompt");
-  }
-};
-
-export const markItemsPrompt = async (listOptions: InternalListOption[]) => {
-  try {
-    // let selectedItemIds: string[];
-    const selectedItems = await multiSelect({
-      message: "Mark items as done:",
-      options: listOptions.map((option) => {
-        return {
-          value: option,
-          name: option.item,
-        };
-      }),
-      equals: (a, b) => a.id === b.id,
-    });
-    const selectedItemStr = selectedItems.map((item) => item.id);
-    return ok(selectedItemStr);
-  } catch (error) {
-    return handlePromptError(error, "markItemsPrompt");
   }
 };
 

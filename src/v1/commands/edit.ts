@@ -46,8 +46,6 @@ export const editItemInList = async (
       location: `${editPromptRes.error} -> editItemInList`,
     });
 
-  console.log(editPromptRes.value);
-
   const selectedItem = itemOptions.find(
     (item) => item.id === editPromptRes.value.answer,
   );

@@ -38,7 +38,7 @@ export const loadData = (filepath: string) => {
   return err({
     message: "data_file_not_found",
     location: "loadData",
-    MessageLevel: "warn" as LogLevel,
+    MessageLevel: "panic" as LogLevel,
   });
 };
 
@@ -50,7 +50,7 @@ export const loadMetadata = (filepath: string) => {
   return err({
     message: "metadata_not_found",
     location: "loadMetadata",
-    MessageLevel: "warn" as LogLevel,
+    MessageLevel: "panic" as LogLevel,
   });
 };
 
@@ -62,7 +62,7 @@ export const loadConfig = (configFilepath: string) => {
   return err({
     message: "config_not_found",
     location: "loadConfig",
-    messageLevel: "warn" as LogLevel,
+    messageLevel: "panic" as LogLevel,
   });
 };
 
@@ -107,31 +107,6 @@ export const saveConfig = (
   }
 };
 
-export const handleFileOutputError = (
-  fn: FileOutputFunction,
-  args: [ArgsOf<typeof fn>[0], ArgsOf<typeof fn>[1]],
-): Result<ReturnType<typeof fn>, QLError> => {
-  try {
-    return ok(fn(...args));
-  } catch (error) {
-    let message: string;
-    if (error instanceof Error) {
-      if ((error as any).code === "EACCES") {
-        message =
-          "Please use 'sudo' before your command as this command requires extra permissions.";
-      } else {
-        console.log("coming here lololol");
-        message = error.message;
-      }
-    } else message = "Uh oh, something went horribly wrong :(";
-    return err({
-      message,
-      location: fn.name,
-      messageLevel: "error" as LogLevel,
-    });
-  }
-};
-
 export const createDir = (dirName: string) => {
   try {
     if (!fs.existsSync(dirName)) {
@@ -140,31 +115,6 @@ export const createDir = (dirName: string) => {
     return ok();
   } catch (error) {
     return handleIOError(error, "createDir");
-  }
-};
-
-const handleFileInputError = (
-  fn: FileInputFunction,
-  args: ArgsOf<typeof fn>[0],
-): Result<ReturnType<typeof fn>, QLError> => {
-  try {
-    return ok(fn(args));
-  } catch (error) {
-    let message: string;
-    if (error instanceof Error) {
-      if ((error as any).code === "EACCES") {
-        message =
-          "Please use 'sudo' before your command as this command requires extra permissions.";
-      } else {
-        console.log("coming here lololol");
-        message = error.message;
-      }
-    } else message = "Uh oh, something went horribly wrong :(";
-    return err({
-      message,
-      location: fn.name,
-      messageLevel: "error" as LogLevel,
-    });
   }
 };
 

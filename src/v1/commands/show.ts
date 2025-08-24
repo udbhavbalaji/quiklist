@@ -7,7 +7,6 @@ import logger, { INFO_HEX, PANIC_HEX } from "@/lib/logger";
 import { renderDate } from "@/lib/render";
 import {
   ListItem,
-  Priority,
   PriorityStyle,
   SortCriteria,
   SortOrder,
@@ -15,7 +14,6 @@ import {
 } from "@/types/list";
 import { DateFormat } from "@/types";
 import {
-  priorityMapping,
   sortByCreatedDate,
   sortByDeadline,
   sortByPriority,
@@ -62,20 +60,19 @@ export const showItems = (
     }
   }
 
-  // console.log(chalk.hex("#f7ac20").italic("\n -- TODO -- "));
-
-  // console.log("\n -- TODO -- ");
   logger.hex(PANIC_HEX, "\n -- TODO --");
   uncheckedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
-
-  if (!unchecked) {
-    // console.log(chalk.hex("#72e00b").italic("\n -- COMPLETED -- "));
-    // console.log("\n -- COMPLETED -- ");
-    logger.hex(INFO_HEX, "\n -- COMPLETED -- ");
-    checkedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
+  if (uncheckedItems.length === 0) {
+    logger.hex(PANIC_HEX, "No items to show.");
   }
 
-  logger.warn("There are no more unchecked items on your list!");
+  if (!unchecked) {
+    logger.hex(INFO_HEX, "\n -- COMPLETED -- ");
+    checkedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
+    if (checkedItems.length === 0) {
+      logger.hex(INFO_HEX, "No items to show.");
+    }
+  }
   return ok();
 };
 

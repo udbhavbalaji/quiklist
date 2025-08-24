@@ -1,9 +1,4 @@
-import {
-  InternalListOption,
-  ListItem,
-  Priority,
-  SortOrder,
-} from "@/types/list";
+import { InternalListOption, Priority, SortOrder } from "@/types/list";
 
 export const splitListItems = (items: InternalListOption[]) => {
   const checkedItems: InternalListOption[] = [];
@@ -42,8 +37,6 @@ export const sortByDeadline = (
   listItems: InternalListOption[],
   sortOrder: SortOrder,
 ) => {
-  // return sortOrder === "descending" ? listItems.sort((a,b) => priorityMapping[b.priority] - priorityMapping[a.priority]) : listItems.sort((a,b) => priorityMapping[a.priority] - priorityMapping[b.priority])
-
   const itemsWithDeadline: InternalListOption[] = [];
   const itemsWithoutDeadline: InternalListOption[] = [];
 
@@ -70,28 +63,6 @@ export const sortByPriority = (
   listItems: InternalListOption[],
   sortOrder: SortOrder,
 ) => {
-  // const itemsWithPriority: ListItem[] = [];
-  // const itemsWithoutPriority: ListItem[] = [];
-  //
-  // listItems.forEach((item) => {
-  //   if (item.priority) {
-  //     itemsWithPriority.push({ ...item, priority: item.priority as Priority });
-  //   } else {
-  //     itemsWithoutPriority.push({ ...item, priority: undefined });
-  //   }
-  // });
-  //
-  // const sortedItems =
-  //   sortOrder === "descending"
-  //     ? itemsWithPriority.sort(
-  //       (a, b) => priorityMapping[b.priority!] - priorityMapping[a.priority!],
-  //     )
-  //     : itemsWithPriority.sort(
-  //       (a, b) => priorityMapping[a.priority!] - priorityMapping[b.priority!],
-  //     );
-  //
-  // return sortedItems.concat(itemsWithoutPriority);
-
   return sortOrder === "descending"
     ? listItems.sort(
       (a, b) => priorityMapping[b.priority] - priorityMapping[a.priority],

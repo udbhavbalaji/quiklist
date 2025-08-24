@@ -1,7 +1,7 @@
 import { loadData, saveData } from "@/lib/file-io";
 import { splitListItems } from "@/lib/list";
 import logger from "@/lib/logger";
-import { deleteItemPrompt, itemsPrompt } from "@/lib/prompt";
+import { itemsPrompt } from "@/lib/prompt";
 import { InternalListOption } from "@/types/list";
 import { Command } from "commander";
 import { err, ok } from "neverthrow";

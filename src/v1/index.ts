@@ -16,6 +16,7 @@ import { Priority } from "@/types/list";
 import deleteCommand, { deleteItemFromList } from "@/commands/delete";
 import editCommand, { editItemInList } from "./commands/edit";
 import { renderDate } from "./lib/render";
+import { DateFormat } from "./types";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -46,6 +47,7 @@ const launchQuiklist = (appVersion: string) => {
     const inChildFolder = isProcessWithinCreatedList(config.lists);
 
     if (inChildFolder.isErr()) {
+      logger.error(inChildFolder.error.message);
       // if not, only show the init command to initialize the list in the current config
       initListCommand.action(async (options) =>
         asyncErrorHandler(initializeList(options.d, config, configFilepath)),
@@ -80,9 +82,9 @@ const launchQuiklist = (appVersion: string) => {
         .argument("[item_text...]", "Text for the list item")
         .action((item_text: string[], options) => {
           const priority = options.md
-            ? "MEDIUM"
+            ? ("MEDIUM" as Priority)
             : options.high
-              ? "HIGH"
+              ? ("HIGH" as Priority)
               : ("LOW" as Priority);
           const deadline = options.deadline
             ? renderDate(options.deadline, config.dateFormat, true)

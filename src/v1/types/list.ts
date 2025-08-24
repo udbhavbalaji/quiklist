@@ -43,13 +43,13 @@ export type ListItem = {
 export const styleMapping: Record<PriorityStyle, Record<Priority, string>> = {
   "!/!!/!!!": {
     HIGH: "!!!",
-    MEDIUM: "!!",
-    LOW: "!",
+    MEDIUM: "!! ",
+    LOW: "!  ",
   },
   "*/**/***": {
     HIGH: "***",
-    MEDIUM: "**",
-    LOW: "*",
+    MEDIUM: "** ",
+    LOW: "*  ",
   },
   "1/2/3": {
     HIGH: "3",

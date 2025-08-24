@@ -11,8 +11,6 @@ export const isProcessWithinCreatedList = (
 
   for (const [key, value] of Object.entries(existingLists)) {
     const listPath = path.dirname(path.normalize(value));
-    console.log("currentProcessPath", currentProcessPath);
-    console.log("listPath", listPath);
     if (currentProcessPath.startsWith(listPath)) {
       return ok({ key, value });
     } else if (currentProcessPath === listPath) {
