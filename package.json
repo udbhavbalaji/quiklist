@@ -1,29 +1,51 @@
 {
-  "name": "tracker-test",
-  "version": "1.0.0",
+  "name": "quiklist",
+  "version": "0.1.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev": "NODE_ENV=development npx tsx bin/quiklist.ts",
+    "preview": "NODE_ENV=development node dist/bin/quiklist.js",
     "test": "vitest",
-    "build": "tsc"
+    "build": "tsc && tsc-alias && ts-add-js-extension --dir=dist",
+    "postbuild": "node postbuild.js",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["checklist", "command-line", "app"],
+  "author": "Udbhav Balaji",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udbhavbalaji/quiklist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/udbhavbalaji/quiklist/issues"
+  },
+  "homepage": "https://github.com/udbhavbalaji/quiklist/#readme",
   "bin": {
-    "cli": "dist/cli.js"
+    "quiklist": "./dist/bin/quiklist.js"
   },
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
   "devDependencies": {
     "@types/node": "^24.2.1",
+    "ts-add-js-extension": "^1.6.6",
+    "tsc-alias": "^1.8.16",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
   "dependencies": {
     "@udawg00/logify": "^0.0.7",
-    "arktype": "^2.1.20",
     "commander": "^14.0.0",
     "inquirer": "^12.9.1",
+    "inquirer-honshin-select": "^0.0.4",
+    "inquirer-select-pro": "^1.0.0-alpha.9",
+    "inquirer-toggle": "^1.0.1",
     "neverthrow": "^8.2.0",
     "zod": "^4.0.17"
   }

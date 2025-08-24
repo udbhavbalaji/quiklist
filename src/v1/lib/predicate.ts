@@ -1,8 +1,8 @@
 import * as path from "path";
-
-import { QLCompleteConfig } from "../types/config";
 import { err, ok } from "neverthrow";
 import { LogLevel } from "@udawg00/logify";
+
+import { QLCompleteConfig } from "@/types/config";
 
 export const isProcessWithinCreatedList = (
   existingLists: QLCompleteConfig["lists"],
@@ -10,8 +10,10 @@ export const isProcessWithinCreatedList = (
   const currentProcessPath = path.normalize(process.cwd());
 
   for (const [key, value] of Object.entries(existingLists)) {
-    const listPath = path.normalize(value);
+    const listPath = path.dirname(path.normalize(value));
     if (currentProcessPath.startsWith(listPath)) {
+      return ok({ key, value });
+    } else if (currentProcessPath === listPath) {
       return ok({ key, value });
     }
   }

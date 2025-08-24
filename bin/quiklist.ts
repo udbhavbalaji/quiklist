@@ -1,5 +1,13 @@
-import launchQuiklist from "../src";
+#!/usr/bin/env node
 
-const quikList = launchQuiklist();
+import { createRequire } from "module";
+
+import launchQuiklist from "@/index";
+
+const require = createRequire(import.meta.url);
+
+const { version } = require("../package.json");
+
+const quikList = launchQuiklist(version);
 
 quikList.parse(process.argv);

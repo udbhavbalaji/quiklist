@@ -1,19 +1,12 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
-import { QLCompleteConfig } from "../types/config";
-import { err, ok, Result } from "neverthrow";
-import {
-  FileInputFunction,
-  FileInputTypes,
-  FileOutputFunction,
-} from "../types/file-io";
-import { ArgsOf, QLError } from "../types";
-import { LogLevel } from "@udawg00/logify";
-import Stream from "stream";
-import { ListItem, ListMetadata } from "../types/list";
-import { file } from "zod";
-import logger from "./logger";
+import { err, ok } from "neverthrow";
+import { LogLevel } from "@/types/logger";
+
+import { QLCompleteConfig } from "@/types/config";
+import { FileInputTypes } from "@/types/file-io";
+import { ListItem, ListMetadata } from "@/types/list";
+import logger from "@/lib/logger";
 
 const handleIOError = (error: any, fnName: string) => {
   let message: string;
@@ -22,7 +15,6 @@ const handleIOError = (error: any, fnName: string) => {
       message =
         "Please use 'sudo' before your command as this command requires extra permissions.";
     } else {
-      console.log("coming here lololol");
       message = error.message;
     }
   } else message = "Uh oh, something went horribly wrong :(";
@@ -33,11 +25,31 @@ const handleIOError = (error: any, fnName: string) => {
   });
 };
 
-export const loadMetadata = () => { };
+export const loadData = (filepath: string) => {
+  if (fs.existsSync(filepath)) {
+    const data = readFile<ListItem[]>(filepath);
+    return ok(data);
+  }
+  return err({
+    message: "data_file_not_found",
+    location: "loadData",
+    MessageLevel: "panic" as LogLevel,
+  });
+};
+
+export const loadMetadata = (filepath: string) => {
+  if (fs.existsSync(filepath)) {
+    const metadata = readFile<ListMetadata>(filepath);
+    return ok(metadata);
+  }
+  return err({
+    message: "metadata_not_found",
+    location: "loadMetadata",
+    MessageLevel: "panic" as LogLevel,
+  });
+};
 
 export const loadConfig = (configFilepath: string) => {
-  // const configFilepath = path.join(configDir, "config.json");
-
   if (fs.existsSync(configFilepath)) {
     const config = readFile<QLCompleteConfig>(configFilepath);
     return ok(config);
@@ -45,7 +57,7 @@ export const loadConfig = (configFilepath: string) => {
   return err({
     message: "config_not_found",
     location: "loadConfig",
-    messageLevel: "warn" as LogLevel,
+    messageLevel: "panic" as LogLevel,
   });
 };
 
@@ -80,8 +92,6 @@ export const saveConfig = (
   config: QLCompleteConfig,
   configFilepath: string,
 ) => {
-  // const configFilepath = path.join(configDir, "config.json");
-
   try {
     fs.appendFileSync(configFilepath, JSON.stringify(config, null, 2), {
       flag: "w",
@@ -89,31 +99,6 @@ export const saveConfig = (
     return ok();
   } catch (error) {
     return handleIOError(error, "saveConfig");
-  }
-};
-
-export const handleFileOutputError = (
-  fn: FileOutputFunction,
-  args: [ArgsOf<typeof fn>[0], ArgsOf<typeof fn>[1]],
-): Result<ReturnType<typeof fn>, QLError> => {
-  try {
-    return ok(fn(...args));
-  } catch (error) {
-    let message: string;
-    if (error instanceof Error) {
-      if ((error as any).code === "EACCES") {
-        message =
-          "Please use 'sudo' before your command as this command requires extra permissions.";
-      } else {
-        console.log("coming here lololol");
-        message = error.message;
-      }
-    } else message = "Uh oh, something went horribly wrong :(";
-    return err({
-      message,
-      location: fn.name,
-      messageLevel: "error" as LogLevel,
-    });
   }
 };
 
@@ -125,31 +110,6 @@ export const createDir = (dirName: string) => {
     return ok();
   } catch (error) {
     return handleIOError(error, "createDir");
-  }
-};
-
-const handleFileInputError = (
-  fn: FileInputFunction,
-  args: ArgsOf<typeof fn>[0],
-): Result<ReturnType<typeof fn>, QLError> => {
-  try {
-    return ok(fn(args));
-  } catch (error) {
-    let message: string;
-    if (error instanceof Error) {
-      if ((error as any).code === "EACCES") {
-        message =
-          "Please use 'sudo' before your command as this command requires extra permissions.";
-      } else {
-        console.log("coming here lololol");
-        message = error.message;
-      }
-    } else message = "Uh oh, something went horribly wrong :(";
-    return err({
-      message,
-      location: fn.name,
-      messageLevel: "error" as LogLevel,
-    });
   }
 };
 

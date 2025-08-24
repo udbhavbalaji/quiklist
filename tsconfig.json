@@ -7,11 +7,13 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "outDir": "dist",
+    "baseUrl": ".",
     "paths": {
-      "@/*": "src/v1/*"
+      "@/*": ["src/v1/*"]
     },
     "exactOptionalPropertyTypes": true
   },
-  "include": ["src/**/*", "bin/**/*"]
+  "include": ["src/v1/**/*", "bin/**/*"]
 }

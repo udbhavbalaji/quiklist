@@ -1,23 +1,34 @@
 import { Command } from "commander";
 import * as path from "path";
-
-import { initListPrompt } from "../lib/prompt";
-import { ListItem, ListMetadata, ListOptions } from "../types/list";
 import { err, ok } from "neverthrow";
-import { createDir, saveData, saveMetadata } from "../lib/file-io";
-import logger from "../lib/logger";
 
-export const initializeList = async (defaultListFlag: boolean) => {
+import { initListPrompt } from "@/lib/prompt";
+import { ListMetadata, ListOptions } from "@/types/list";
+import { createDir, saveConfig, saveData, saveMetadata } from "@/lib/file-io";
+import logger from "@/lib/logger";
+import { QLCompleteConfig } from "@/types/config";
+
+export const initializeList = async (
+  defaultListFlag: boolean,
+  config: QLCompleteConfig,
+  configFilepath: string,
+) => {
   let finalListOptions: ListOptions;
 
+  const currentDirpathStems = process.cwd().split(path.sep);
+
   const defaultListOptions: ListOptions = {
-    listName: path.dirname(process.cwd()),
+    listName: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
     deleteOnDone: false,
-    priorityStyle: "!/!!/!!!",
+    priorityStyle: "none",
+
+    // priority add-ons
+    // sortCriteria: "none",
+    // sortOrder: "descending",
   };
 
-  if (defaultListFlag) {
+  if (!defaultListFlag) {
     const initListRes = await initListPrompt(defaultListOptions);
 
     if (initListRes.isErr()) {
@@ -42,15 +53,14 @@ export const initializeList = async (defaultListFlag: boolean) => {
   // create the metadata.json file
   const metadataFilepath = path.join(finalListOptions.appDir, "metadata.json");
 
-  logger.error(metadataFilepath);
-
   const listMetadata: ListMetadata = {
-    ...finalListOptions,
     name: finalListOptions.listName,
     dataFilepath: path.join(
       finalListOptions.appDir,
       `${finalListOptions.listName}.json`,
     ),
+    deleteOnDone: finalListOptions.deleteOnDone,
+    priorityStyle: finalListOptions.priorityStyle,
   };
 
   const saveMetadataRes = saveMetadata(listMetadata, metadataFilepath);
@@ -72,6 +82,20 @@ export const initializeList = async (defaultListFlag: boolean) => {
   }
 
   // update the config file with the mapping of this list and the dir
+  const updatedConfig = {
+    ...config,
+    lists: { ...config.lists, [listMetadata.name]: finalListOptions.appDir },
+  };
+
+  const updateConfigRes = saveConfig(updatedConfig, configFilepath);
+
+  if (updateConfigRes.isErr())
+    return err({
+      ...updateConfigRes.error,
+      location: updateConfigRes.error.location,
+    });
+
+  logger.info(`Created quiklist '${listMetadata.name}'!`);
 
   return ok();
 };

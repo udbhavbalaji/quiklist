@@ -1,9 +1,10 @@
 import { err, ok } from "neverthrow";
-import { QLCompleteConfig, QLUserInputtedConfig } from "../types/config";
-import { configurePrompt } from "./prompt";
-import { createDir, saveConfig } from "./file-io";
-import logger from "./logger";
 import * as path from "path";
+
+import { QLCompleteConfig, QLUserInputtedConfig } from "@/types/config";
+import { configurePrompt } from "@/lib/prompt";
+import { createDir, saveConfig } from "@/lib/file-io";
+import logger from "@/lib/logger";
 
 export const initGlobalConfig = async (configFilepath: string) => {
   const ensureConfigDirExists = createDir(path.dirname(configFilepath));
@@ -44,18 +45,9 @@ export const initGlobalConfig = async (configFilepath: string) => {
       location: `${saveConfigResult.error.location} -> configureApp`,
     });
   }
-  //
-  // const createAppDirResult = createDir(finalConfig.appDir);
-  //
-  // if (createAppDirResult.isErr()) {
-  //   return err({
-  //     ...createAppDirResult.error,
-  //     location: `${createAppDirResult.error.location} -> configureApp`,
-  //   });
-  // }
 
   logger.info(
-    "Quiktrack configuration complete! Use quiktrack [-h|--help] to view available commands and options.",
+    "Quiklist configuration complete! Use quiklist [-h|--help] to view available commands and options.",
   );
 
   return ok();
