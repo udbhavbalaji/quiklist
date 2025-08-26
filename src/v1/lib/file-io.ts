@@ -102,6 +102,34 @@ export const saveConfig = (
   }
 };
 
+export const addToGitIgnore = () => {
+  try {
+    const ignoreRule = "\n# quiklist app data\n.quiklist/";
+    const gitignoreFilepath = path.join(process.cwd(), ".gitignore");
+    const currentContent = fs.readFileSync(gitignoreFilepath, "utf-8");
+
+    if (currentContent.includes(".quiklist/")) {
+      logger.debug("The file already exists in .gitingore");
+      return ok();
+    }
+
+    fs.appendFileSync(gitignoreFilepath, ignoreRule, "utf-8");
+    logger.info("Added .quiklist/ to .gitignore.");
+    return ok();
+  } catch (error) {
+    return handleIOError(error, "addToGitIgnore");
+  }
+};
+
+export const removeDir = (dirName: string) => {
+  try {
+    fs.rmSync(dirName, { recursive: true });
+    return ok();
+  } catch (error) {
+    return handleIOError(error, "removeDir");
+  }
+};
+
 export const createDir = (dirName: string) => {
   try {
     if (!fs.existsSync(dirName)) {

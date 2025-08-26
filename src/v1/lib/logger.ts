@@ -13,23 +13,23 @@ const getFormattedMessage = (message: string) => {
 
 const logger = {
   info: (message: string) => {
-    console.log(chalk.hex(INFO_HEX).italic(getFormattedMessage(message)));
+    console.log(chalk.hex(INFO_HEX).bold(getFormattedMessage(message)));
   },
   debug: (message: string) => {
     if (process.env.NODE_ENV !== "development") return;
-    console.log(chalk.cyan.italic(getFormattedMessage(message)));
+    console.log(chalk.cyan.bold(getFormattedMessage(message)));
   },
   warn: (message: string) => {
-    console.log(chalk.hex(WARN_HEX).italic(getFormattedMessage(message)));
+    console.log(chalk.hex(WARN_HEX).bold(getFormattedMessage(message)));
   },
   panic: (message: string) => {
-    console.log(chalk.hex(PANIC_HEX).italic(getFormattedMessage(message)));
+    console.log(chalk.hex(PANIC_HEX).bold(getFormattedMessage(message)));
   },
   error: (message: string) => {
     console.log(chalk.hex(ERROR_HEX).bold(getFormattedMessage(message)));
   },
   hex: (hex: string, message: string) => {
-    console.log(chalk.hex(hex).italic(message));
+    console.log(chalk.hex(hex).bold(message));
   },
 };
 

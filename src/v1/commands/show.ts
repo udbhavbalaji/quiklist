@@ -3,7 +3,12 @@ import { err, ok } from "neverthrow";
 import chalk from "chalk";
 
 import { loadData } from "@/lib/file-io";
-import logger, { INFO_HEX, PANIC_HEX } from "@/lib/logger";
+import logger, {
+  DEBUG_HEX,
+  ERROR_HEX,
+  INFO_HEX,
+  PANIC_HEX,
+} from "@/lib/logger";
 import { renderDate } from "@/lib/render";
 import {
   ListItem,
@@ -65,10 +70,10 @@ export const showItems = (
     }
   }
 
-  logger.hex(PANIC_HEX, "\n -- TODO --");
+  logger.hex(ERROR_HEX, "\n -- TODO --");
   uncheckedItems.forEach((item) => renderItem(item, dateFormat, priorityStyle));
   if (uncheckedItems.length === 0) {
-    logger.hex(PANIC_HEX, "No items to show.");
+    logger.hex(ERROR_HEX, "No items to show.");
   }
 
   if (!unchecked) {
@@ -78,6 +83,7 @@ export const showItems = (
       logger.hex(INFO_HEX, "No items to show.");
     }
   }
+  logger.hex(DEBUG_HEX, "");
   return ok();
 };
 
@@ -88,12 +94,7 @@ const renderItem = (
 ) => {
   let output = `[${item.done ? "✔" : " "}] ${priorityStyle !== "none" ? ` ${styleMapping[priorityStyle][item.priority]} ` : ""} ${item.item} :: Added on: ${errorHandler(renderDate(item.createdAt, dateFormat))}${item.deadline ? `    {Deadline: ${errorHandler(renderDate(item.deadline, dateFormat, true))}}` : ""}`;
 
-  console.log(
-    // output,
-    item.done
-      ? chalk.hex(INFO_HEX).italic(output)
-      : chalk.hex(PANIC_HEX).italic(output),
-  );
+  logger.hex(item.done ? INFO_HEX : ERROR_HEX, output);
 };
 
 const showCommand = new Command("show")

@@ -40,6 +40,28 @@ const handlePromptError = (error: any, fnName: string) => {
   }
 };
 
+export const confirmPrompt = async (message: string) => {
+  try {
+    const confirmed = await confirm({ message, default: true });
+    return ok(confirmed);
+  } catch (error) {
+    return handlePromptError(error, "confirmPrompt");
+  }
+};
+
+export const itemTextPrompt = async () => {
+  try {
+    const itemText = await input({
+      message: "Enter the item description: ",
+      validate: (value) =>
+        value.length > 0 ? true : "Description cannot be empty",
+    });
+    return ok(itemText);
+  } catch (error) {
+    return handlePromptError(error, "itemTextPrompt");
+  }
+};
+
 export const itemsPrompt = async (
   checkedItemOptions: InternalListOption[],
   uncheckedItemOptions: InternalListOption[],
@@ -78,6 +100,14 @@ export const itemsPrompt = async (
         promptType === "mark"
           ? checkedItemOptions.map((item) => item.id)
           : undefined,
+      theme:
+        promptType === "mark"
+          ? {}
+          : {
+            icon: {
+              checked: "[✘]",
+            },
+          },
     });
 
     if (confirmSelection && selectedItems.length > 0) {
