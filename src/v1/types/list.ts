@@ -1,8 +1,12 @@
 export type ListMetadata = {
   name: string;
   dataFilepath: string;
-  deleteOnDone: boolean;
+  // deprecated
+  // deleteOnDone: boolean;
   priorityStyle: PriorityStyle;
+  sortCriteria: SortCriteria;
+  sortOrder: SortOrder;
+
   // future add-on
   // deadline: boolean
 };
@@ -94,12 +98,13 @@ export type InternalListOption = ListItem & { id: string };
 export type ListOptions = {
   listName: string;
   appDir: string;
-  deleteOnDone: boolean;
+  // deprecated: not adding this as a feature as it makes it hard to track lists
+  // deleteOnDone: boolean;
   priorityStyle: PriorityStyle;
   // priority add-on
-  // sortCriteria: "none" | "priority" | "created" | "deadline";
-  // sortOrder: "ascending" | "descending";
+  sortCriteria: SortCriteria;
+  sortOrder: "ascending" | "descending";
 
   // future add-on
-  // deadline: boolean
+  // deadline: boolean;
 };

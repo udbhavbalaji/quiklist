@@ -20,12 +20,12 @@ export const initializeList = async (
   const defaultListOptions: ListOptions = {
     listName: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
-    deleteOnDone: false,
+    // deleteOnDone: false,
     priorityStyle: "none",
 
     // priority add-ons
-    // sortCriteria: "none",
-    // sortOrder: "descending",
+    sortCriteria: "none",
+    sortOrder: "descending",
   };
 
   if (!defaultListFlag) {
@@ -59,8 +59,10 @@ export const initializeList = async (
       finalListOptions.appDir,
       `${finalListOptions.listName}.json`,
     ),
-    deleteOnDone: finalListOptions.deleteOnDone,
+    // deleteOnDone: finalListOptions.deleteOnDone,
     priorityStyle: finalListOptions.priorityStyle,
+    sortCriteria: finalListOptions.sortCriteria,
+    sortOrder: finalListOptions.sortOrder,
   };
 
   const saveMetadataRes = saveMetadata(listMetadata, metadataFilepath);

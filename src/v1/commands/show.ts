@@ -19,6 +19,7 @@ import {
   sortByPriority,
   splitListItems,
 } from "@/lib/list";
+import { errorHandler } from "@/lib/error-handle";
 
 export const showItems = (
   filepath: string,
@@ -46,17 +47,21 @@ export const showItems = (
     case "priority": {
       checkedItems = sortByPriority(checkedItems, sortOrder);
       uncheckedItems = sortByPriority(uncheckedItems, sortOrder);
+      break;
     }
     case "created": {
       checkedItems = sortByCreatedDate(checkedItems, sortOrder);
       uncheckedItems = sortByCreatedDate(uncheckedItems, sortOrder);
+      break;
     }
     case "deadline": {
       checkedItems = sortByDeadline(checkedItems, sortOrder);
       uncheckedItems = sortByDeadline(uncheckedItems, sortOrder);
+      break;
     }
     case "none": {
       logger.debug("Sorting skipped!");
+      break;
     }
   }
 
@@ -81,7 +86,7 @@ const renderItem = (
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
 ) => {
-  let output = `[${item.done ? "X" : " "}] ${priorityStyle !== "none" ? ` ${styleMapping[priorityStyle][item.priority]} ` : ""} ${item.item} :: Added on: ${renderDate(item.createdAt, dateFormat)}${item.deadline ? `    {Deadline: ${renderDate(item.deadline, dateFormat, true)}}` : ""}`;
+  let output = `[${item.done ? "✔" : " "}] ${priorityStyle !== "none" ? ` ${styleMapping[priorityStyle][item.priority]} ` : ""} ${item.item} :: Added on: ${errorHandler(renderDate(item.createdAt, dateFormat))}${item.deadline ? `    {Deadline: ${errorHandler(renderDate(item.deadline, dateFormat, true))}}` : ""}`;
 
   console.log(
     // output,

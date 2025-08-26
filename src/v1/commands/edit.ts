@@ -1,3 +1,4 @@
+import { errorHandler } from "@/lib/error-handle";
 import { loadData, saveData } from "@/lib/file-io";
 import { splitListItems } from "@/lib/list";
 import logger from "@/lib/logger";
@@ -61,7 +62,7 @@ export const editItemInList = async (
   let updatedDeadline = selectedItem.deadline;
   // let updatedDoneStatus = selectedItem.done;
 
-  let successMessage: string = "This isn't a success.";
+  let message: string = "Please choose an action for the highlighted item!";
 
   const action = editPromptRes.value.action;
 
@@ -75,7 +76,7 @@ export const editItemInList = async (
       });
 
     updatedItemText = updatedItemRes.value;
-    successMessage = "Successfully edited item description!";
+    message = "Successfully edited item description!";
   } else if (action === "priority") {
     const updatedItemRes = await getUpdatedItemPriority(selectedItem);
 
@@ -86,7 +87,7 @@ export const editItemInList = async (
       });
 
     updatedPriority = updatedItemRes.value;
-    successMessage = "Successfully edited item's priority level!";
+    message = "Successfully edited item's priority level!";
   } else if (action === "deadline") {
     const updatedItemRes = await getUpdatedItemDeadline(
       selectedItem,
@@ -102,9 +103,9 @@ export const editItemInList = async (
     if (updatedItemRes.value === "") updatedDeadline = undefined;
     else
       updatedDeadline = new Date(
-        renderDate(updatedItemRes.value, dateFormat),
+        errorHandler(renderDate(updatedItemRes.value, dateFormat, true)),
       ).toISOString();
-    successMessage = "Successfully edited item's deadline!";
+    message = "Successfully edited item's deadline!";
   }
 
   const updatedItem = {
@@ -129,7 +130,11 @@ export const editItemInList = async (
   if (saveDataRes.isErr())
     return err({ ...saveDataRes.error, location: saveDataRes.error.location });
 
-  logger.info(successMessage);
+  logger[
+    message === "Please choose an action for the highlighted item!"
+      ? "error"
+      : "info"
+  ](message);
 
   return ok();
 };

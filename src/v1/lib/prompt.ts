@@ -8,10 +8,17 @@ import newActionSelect from "inquirer-honshin-select";
 import logger from "@/lib/logger";
 import { QLUserInputtedConfig } from "@/types/config";
 import { date_formats, DateFormat } from "@/types";
-import { InternalListOption, ListOptions, priorities } from "@/types/list";
+import {
+  InternalListOption,
+  ListOptions,
+  priorities,
+  sort_criteria,
+  sort_orders,
+} from "@/types/list";
 import { pathValidator } from "@/lib/validator";
 import { priority_styles } from "@/types/list";
 import { renderDate } from "@/lib/render";
+import { errorHandler } from "./error-handle";
 
 // @ts-ignore - only works this way: https://github.com/skarahoda/inquirer-toggle/issues/3
 const toggle = tgl.default;
@@ -25,7 +32,6 @@ const handlePromptError = (error: any, fnName: string) => {
     logger.error("Operation terminated.");
     process.exit(1);
   } else {
-    console.log(error.name);
     return err({
       message: (error as Error).message,
       location: fnName,
@@ -106,8 +112,8 @@ export const getUpdatedItemDeadline = async (
     const answer = await input({
       message: "Enter updated deadline: ",
       default: item.deadline
-        ? renderDate(item.deadline, dateFormat)
-        : renderDate(new Date().toISOString(), dateFormat),
+        ? errorHandler(renderDate(item.deadline, dateFormat))
+        : errorHandler(renderDate(new Date().toISOString(), dateFormat)),
       prefill: "editable",
     });
     return ok(answer);
@@ -213,10 +219,11 @@ export const initListPrompt = async (defaultListOptions: ListOptions) => {
       validate: pathValidator,
     });
 
-    const deleteOnDone = await confirm({
-      message: "Should we delete items as you're done with them?",
-      default: defaultListOptions.deleteOnDone,
-    });
+    // deprecated
+    // const deleteOnDone = await confirm({
+    //   message: "Should we delete items as you're done with them?",
+    //   default: defaultListOptions.deleteOnDone,
+    // });
 
     const priorityStyle = await select({
       message: "How do you want the priorities displayed? ",
@@ -226,11 +233,32 @@ export const initListPrompt = async (defaultListOptions: ListOptions) => {
       default: defaultListOptions.priorityStyle,
     });
 
+    const sortCriteria = await select({
+      message: "How do you want your items sorted? ",
+      choices: sort_criteria.map((value) => {
+        return { value };
+      }),
+      default: defaultListOptions.sortCriteria,
+    });
+
+    const sortOrder =
+      sortCriteria !== "none"
+        ? await select({
+          message: "In what order do you want your items sorted? ",
+          choices: sort_orders.map((value) => {
+            return { value };
+          }),
+          default: defaultListOptions.sortOrder,
+        })
+        : defaultListOptions.sortOrder;
+
     return ok({
       listName,
       appDir,
-      deleteOnDone,
+      // deleteOnDone,
       priorityStyle,
+      sortCriteria,
+      sortOrder,
     });
   } catch (error) {
     return handlePromptError(error, "initListPrompt");

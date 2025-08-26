@@ -16,8 +16,8 @@ import { Priority } from "@/types/list";
 import deleteCommand, { deleteItemFromList } from "@/commands/delete";
 import editCommand, { editItemInList } from "./commands/edit";
 import { renderDate } from "./lib/render";
-import { DateFormat } from "./types";
 import { err } from "neverthrow";
+import { dateValidator } from "./lib/validator";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -81,7 +81,7 @@ const launchQuiklist = (appVersion: string) => {
       }
       addCommand
         .argument("[item_text...]", "Text for the list item")
-        .action((item_text: string[], options) => {
+        .action(async (item_text: string[], options) => {
           const itemText = item_text.join(" ");
           if (itemText === "")
             return errorHandler(
@@ -96,9 +96,26 @@ const launchQuiklist = (appVersion: string) => {
             : options.high
               ? ("HIGH" as Priority)
               : ("LOW" as Priority);
-          const deadline = options.deadline
-            ? renderDate(options.deadline, config.dateFormat, true)
-            : undefined;
+          // const deadline = options.deadline
+          //   ? renderDate(options.deadline, config.dateFormat, true)
+          //   : undefined;
+
+          let deadline: string | undefined = undefined;
+
+          if (options.deadline) {
+            const validatedDeadline = await dateValidator(
+              errorHandler(
+                renderDate(options.deadline, config.dateFormat, true),
+              ),
+            );
+            if (typeof validatedDeadline === "string") {
+              logger.error(`${validatedDeadline}. Operation aborted.`);
+              process.exit(1);
+            }
+            deadline = errorHandler(
+              renderDate(options.deadline, config.dateFormat, true),
+            );
+          }
           return errorHandler(
             addToList(
               metadata.dataFilepath,
@@ -122,8 +139,8 @@ const launchQuiklist = (appVersion: string) => {
             options.unchecked,
             config.dateFormat,
             metadata.priorityStyle,
-            "none",
-            "descending",
+            metadata.sortCriteria,
+            metadata.sortOrder,
           ),
         ),
       );
@@ -150,5 +167,9 @@ const launchQuiklist = (appVersion: string) => {
   }
   return app;
 };
+// [ ]  !!!  remove unnecessary log statements or ensure that they dont show up to the user :: Added on: 25-08-2025
+// [ ]  !!!  ensure sorting functionality is available and settable in config :: Added on: 25-08-2025
+// [ ]  !!   ensure that .quiklist is added to gitignore if exists :: Added on: 25-08-2025
+// [ ]  !!!  add sync support to shareable markdown file?
 
 export default launchQuiklist;
