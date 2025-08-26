@@ -11,6 +11,7 @@ export const addToList = (
   priority: Priority,
   deadline?: string,
 ) => {
+  console.log(new Date(deadline!));
   const item: ListItem = {
     done: false,
     item: itemText,
