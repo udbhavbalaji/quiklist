@@ -8,7 +8,6 @@ The quickest command line checklist app for managing your tasks efficiently.
 - **Priority Support**: Assign priorities (HIGH, MEDIUM, LOW) with customizable visual styles
 - **Deadline Tracking**: Set deadlines for tasks with flexible date formats
 - **Sorting Options**: Sort items by priority, creation date, or deadline
-- **Multiple Lists**: Create and manage multiple checklists
 - **Interactive Prompts**: User-friendly prompts for better UX
 
 ## Installation
@@ -54,7 +53,7 @@ npm link
    ```bash
    quiklist add "Buy groceries"
    quiklist add "Finish project" --high
-   quiklist add "Call mom" --deadline "2024-01-15"
+   quiklist add "Call mom" -d "13-09-2025"
    ```
 
 4. **View your list**:
@@ -82,7 +81,7 @@ npm link
 
 ### Item Management (within a list directory)
 
-- `quiklist add [item_text...]` - Add new item to the list
+- `quiklist add [item_text...]` - Add new item to the list. By default, new items are assigned 'LOW' priority
   - `--md` - Set priority to MEDIUM
   - `--high` - Set priority to HIGH
   - `-d, --deadline [deadline]` - Set deadline (format depends on config)
@@ -137,20 +136,20 @@ quiklist mark
 quiklist edit
 ```
 
-### Managing Multiple Lists
+### Managing Lists across multiple projects
 
 ```bash
-# Work list
-cd work-project
+# working on project A
+cd project-A
 quiklist init
-quiklist add "Team meeting" --high
-quiklist add "Code review"
+quiklist add "Project A task 1, v important" --high
+quiklist add "Add documentation"
 
-# Personal list
-cd personal-project
+# working on project B
+cd project-B
 quiklist init
-quiklist add "Grocery shopping"
-quiklist add "Dentist appointment" --deadline "2024-01-20"
+quiklist add "Project B task" --md
+quiklist add "some other task" --deadline "04-05-2025"
 ```
 
 ## Development
@@ -169,7 +168,7 @@ npm test            # Run tests
 
 ```
 src/v1/
-├── commands/        # CLI command implementations
+├── commands/       # CLI command implementations
 ├── lib/            # Core library functions
 ├── types/          # TypeScript type definitions
 └── index.ts        # Main application entry point

@@ -143,3 +143,6 @@ test.ts
 *.txt
 .quiklist
 .DS_Store
+
+# quiklist app data
+.quiklist/
