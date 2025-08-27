@@ -14,10 +14,11 @@ import markCommand, { markItemAsDone } from "@/commands/mark";
 import showCommand, { showItems } from "@/commands/show";
 import { Priority } from "@/types/list";
 import deleteCommand, { deleteItemFromList } from "@/commands/delete";
-import editCommand, { editItemInList } from "./commands/edit";
-import { renderDate } from "./lib/render";
-import { DateFormat } from "./types";
-import { err } from "neverthrow";
+import editCommand, { editItemInList } from "@/commands/edit";
+import { renderDate } from "@/lib/render";
+import { dateValidator } from "@/lib/validator";
+import deleteListCommand, { deleteList } from "@/commands/delete-list";
+import { confirmPrompt, itemTextPrompt } from "@/lib/prompt";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -26,7 +27,8 @@ const launchQuiklist = (appVersion: string) => {
   // create the app
   const app = new Command("quiklist")
     .description("The quickest command line checklist.")
-    .version(appVersion);
+    .version(appVersion)
+    .alias("ql");
 
   // check if global config exists
   if (!fs.existsSync(configFilepath)) {
@@ -81,31 +83,35 @@ const launchQuiklist = (appVersion: string) => {
       }
       addCommand
         .argument("[item_text...]", "Text for the list item")
-        .action((item_text: string[], options) => {
-          const itemText = item_text.join(" ");
-          if (itemText === "")
-            return errorHandler(
-              err({
-                message: "text_content_empty",
-                location: "addCommandHandler",
-                messageLevel: "panic",
-              }),
-            );
+        .action(async (item_text: string[], options) => {
+          let itemText = item_text.join(" ");
+          if (itemText === "") {
+            itemText = await asyncErrorHandler(itemTextPrompt());
+          }
           const priority = options.md
             ? ("MEDIUM" as Priority)
             : options.high
               ? ("HIGH" as Priority)
               : ("LOW" as Priority);
-          const deadline = options.deadline
-            ? renderDate(options.deadline, config.dateFormat, true)
-            : undefined;
+
+          let deadline: string | undefined = undefined;
+
+          if (options.deadline) {
+            const validatedDeadline = await dateValidator(
+              errorHandler(
+                renderDate(options.deadline, config.dateFormat, true),
+              ),
+            );
+            if (typeof validatedDeadline === "string") {
+              logger.error(`${validatedDeadline}. Operation aborted.`);
+              process.exit(1);
+            }
+            deadline = errorHandler(
+              renderDate(options.deadline, config.dateFormat, true),
+            );
+          }
           return errorHandler(
-            addToList(
-              metadata.dataFilepath,
-              item_text.join(" "),
-              priority,
-              deadline,
-            ),
+            addToList(metadata.dataFilepath, itemText, priority, deadline),
           );
         });
 
@@ -122,8 +128,8 @@ const launchQuiklist = (appVersion: string) => {
             options.unchecked,
             config.dateFormat,
             metadata.priorityStyle,
-            "none",
-            "descending",
+            metadata.sortCriteria,
+            metadata.sortOrder,
           ),
         ),
       );
@@ -140,15 +146,38 @@ const launchQuiklist = (appVersion: string) => {
         ),
       );
 
+      deleteListCommand.action(async () => {
+        const userConfirmed = await asyncErrorHandler(
+          confirmPrompt(
+            "Are you sure you want to delete this list? This action cannot be undone!",
+          ),
+        );
+
+        if (userConfirmed) {
+          return await asyncErrorHandler(
+            deleteList(
+              path.join(config.lists[metadata.name], "metadata.json"),
+              config,
+              configFilepath,
+            ),
+          );
+        }
+      });
+
       // // binding the commands to the app
       app.addCommand(addCommand);
       app.addCommand(markCommand);
       app.addCommand(showCommand);
       app.addCommand(deleteCommand);
       app.addCommand(editCommand);
+      app.addCommand(deleteListCommand);
     }
   }
   return app;
 };
+// [ ]  !!!  remove unnecessary log statements or ensure that they dont show up to the user :: Added on: 25-08-2025
+// [x]  !!!  ensure sorting functionality is available and settable in config :: Added on: 25-08-2025
+// [x]  !!   ensure that .quiklist is added to gitignore if exists :: Added on: 25-08-2025
+// [ ]  !!!  add sync support to shareable markdown file?
 
 export default launchQuiklist;

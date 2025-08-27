@@ -1,14 +1,38 @@
 import { DateFormat } from "@/types";
+import { LogLevel } from "@/types/logger";
+import { err, ok } from "neverthrow";
 
 export const renderDate = (
   date: string,
   dateFormat: DateFormat,
   inverse = false,
 ) => {
-  const datePart = date.split("T")[0];
-  return inverse
-    ? inverseDateTransformer[dateFormat](datePart)
-    : dateTransformer[dateFormat](datePart);
+  try {
+    const datePart = date.split("T")[0];
+    return ok(
+      inverse
+        ? inverseDateTransformer[dateFormat](datePart)
+        : dateTransformer[dateFormat](datePart),
+    );
+  } catch (error) {
+    if ((error as Error).name === "TypeError")
+      return err({
+        message: "Invalid_date",
+        location: "renderDate",
+        messageLevel: "error" as LogLevel,
+      });
+    else
+      return err({
+        message: (error as Error).message,
+        location: "renderDate",
+        messageLevel: "error" as LogLevel,
+      });
+  }
+
+  // const datePart = date.split("T")[0];
+  // return inverse
+  //   ? inverseDateTransformer[dateFormat](datePart)
+  //   : dateTransformer[dateFormat](datePart);
 };
 
 // converts iso to preferred format

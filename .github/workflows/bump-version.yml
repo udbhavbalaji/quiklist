@@ -1,0 +1,82 @@
+name: Bump NPM package version
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/**'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Get Current & Published Versions
+        id: version-check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm show $(node -p "require('./package.json').name") version || echo "0.0.0")
+
+          echo "Current Version: $CURRENT_VERSION"
+          echo "Published Version: $PUBLISHED_VERSION"
+
+          echo "current_version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "published_version=$PUBLISHED_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check if Version Bump is Needed
+        id: version-bump-needed
+        run: |
+          CURRENT_VERSION="${{ steps.version-check.outputs.current_version }}"
+          PUBLISHED_VERSION="${{ steps.version-check.outputs.published_version }}"
+
+          if [ "$CURRENT_VERSION" == "$PUBLISHED_VERSION" ]; then
+            echo "version_bump=true" >> $GITHUB_OUTPUT
+          else
+            echo "version_bump=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump Version & Create Pull Request
+        run: |
+          if [ "${{ steps.version-bump-needed.outputs.version_bump }}" = "true" ]; then
+            npm version patch --force -m "Bump version to %s [skip ci]"
+
+            git push
+
+            # if git diff --quiet --exit-code package.json; then
+            #   echo "package.json was not modified (version already up-to-date)."
+            #   VERSION_UPDATED=false
+            # else
+            #   VERSION_UPDATED=true
+            # fi
+
+            # if [ "$VERSION_UPDATED" = true ]; then
+            #   git add package.json
+            #   git commit -m "Bump version to $(node -p "require('./package.json').version") [skip ci]"
+            #   git push
+            # else
+            #   echo "No version update needed, skipping git push."
+            # fi
+          else
+            echo "Version bump not needed"
+          fi
+
+          REPO=$(echo "$GITHUB_REPOSITORY" | cut -d '/' -f 2)
+          OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d '/' -f 1)
+          gh pr create --base deploy --head main --title "Merge main into deploy after version bump" --body "Automated merge from main into deploy after version bump"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  

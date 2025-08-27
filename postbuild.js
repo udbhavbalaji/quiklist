@@ -5,7 +5,6 @@ import path from "path";
 const targetFile = path.resolve("dist/bin/quiklist.js");
 const originalLine = `require("../package.json")`;
 const replacementLine = `require("../../package.json")`;
-// const replacementLine = `require(require('path').join(process.cwd(), 'package.json'))`;
 
 let content = fs.readFileSync(targetFile, "utf-8");
 

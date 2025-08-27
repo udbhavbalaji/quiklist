@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/udbhavbalaji/quiklist/#readme",
   "bin": {
-    "quiklist": "./dist/bin/quiklist.js"
+    "quiklist": "./dist/bin/quiklist.js",
+    "ql": "./dist/bin/quiklist.js"
   },
   "files": [
     "dist/",
