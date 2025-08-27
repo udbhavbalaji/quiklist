@@ -4,7 +4,13 @@ import { err, ok } from "neverthrow";
 
 import { initListPrompt } from "@/lib/prompt";
 import { ListMetadata, ListOptions } from "@/types/list";
-import { createDir, saveConfig, saveData, saveMetadata } from "@/lib/file-io";
+import {
+  addToGitIgnore,
+  createDir,
+  saveConfig,
+  saveData,
+  saveMetadata,
+} from "@/lib/file-io";
 import logger from "@/lib/logger";
 import { QLCompleteConfig } from "@/types/config";
 
@@ -20,12 +26,12 @@ export const initializeList = async (
   const defaultListOptions: ListOptions = {
     listName: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
-    deleteOnDone: false,
+    // deleteOnDone: false,
     priorityStyle: "none",
 
     // priority add-ons
-    // sortCriteria: "none",
-    // sortOrder: "descending",
+    sortCriteria: "none",
+    sortOrder: "descending",
   };
 
   if (!defaultListFlag) {
@@ -59,8 +65,10 @@ export const initializeList = async (
       finalListOptions.appDir,
       `${finalListOptions.listName}.json`,
     ),
-    deleteOnDone: finalListOptions.deleteOnDone,
+    // deleteOnDone: finalListOptions.deleteOnDone,
     priorityStyle: finalListOptions.priorityStyle,
+    sortCriteria: finalListOptions.sortCriteria,
+    sortOrder: finalListOptions.sortOrder,
   };
 
   const saveMetadataRes = saveMetadata(listMetadata, metadataFilepath);
@@ -93,6 +101,14 @@ export const initializeList = async (
     return err({
       ...updateConfigRes.error,
       location: updateConfigRes.error.location,
+    });
+
+  const gitignoreRes = addToGitIgnore();
+
+  if (gitignoreRes.isErr())
+    return err({
+      ...gitignoreRes.error,
+      location: `${gitignoreRes.error.location} -> initListCommand`,
     });
 
   logger.info(`Created quiklist '${listMetadata.name}'!`);
