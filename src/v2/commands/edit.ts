@@ -1,0 +1,105 @@
+import { loadList } from "@v2/lib/file-io";
+import { editItemPrompt } from "@v2/lib/prompt";
+import { DateFormat, PriorityStyle } from "@v2/types";
+import { err } from "neverthrow";
+
+const editItemDetails = async (
+  datasetFilepath: string,
+  dateFormat: DateFormat,
+  priorityStyle: PriorityStyle,
+) => {
+  const itemsRes = loadList(datasetFilepath);
+
+  if (itemsRes.isErr())
+    return err({
+      ...itemsRes.error,
+      location: `${itemsRes.error.location} -> editItemDetails`,
+    });
+
+  const itemOptions = {
+    checked: itemsRes.value.checked.map((item) => {
+      return { ...item, id: `${item.description}:${item.createdAt}` };
+    }),
+    unchecked: itemsRes.value.unchecked.map((item) => {
+      return { ...item, id: `${item.description}:${item.createdAt}` };
+    }),
+  };
+
+  const editItemDetailsRes = await editItemPrompt(
+    itemOptions,
+    dateFormat,
+    priorityStyle,
+  );
+
+  if (editItemDetailsRes.isErr())
+    return err({
+      ...editItemDetailsRes.error,
+      location: `${editItemDetailsRes.error.location} -> editItemDetails`,
+    });
+
+  let selectedItem =
+    itemOptions.checked.find(
+      (item) => item.id === editItemDetailsRes.value.answer,
+    ) ??
+    itemOptions.unchecked.find(
+      (item) => item.id === editItemDetailsRes.value.answer,
+    );
+
+  if (!selectedItem)
+    return err({
+      message: "Selected item doesn't exist apparently",
+      location: "editItemDetails",
+    });
+
+  let updatedPriority = selectedItem.priority;
+  let updatedDescription = selectedItem.description;
+  let updatedDeadline = selectedItem.deadline;
+
+  let message = "Please choose an action for the highlighted item!";
+
+  const action = editItemDetailsRes.value.action;
+
+  switch (action) {
+    case "item": {
+      const updatedItemRes = await getUpdatedItemDescription(selectedItem);
+
+      if (updatedItemRes.isErr())
+        return err({
+          ...updatedItemRes.error,
+          location: `${updatedItemRes.error.location} -> editItemDetails`,
+        });
+
+      updatedDescription = updatedItemRes.value;
+      message = "Successfully edited item's description!";
+      break;
+    }
+    case "priority": {
+      const updatedItemRes = await getUpdatedPriority(selectedItem);
+
+      if (updatedItemRes.isErr())
+        return err({
+          ...updatedItemRes.error,
+          location: `${updatedItemRes.error.location} -> editItemDetails`,
+        });
+
+      updatedPriority = updatedItemRes.value;
+      message = "Successfully edited item's priority!";
+      break;
+    }
+    case "deadline": {
+      const updatedItemRes = await getUpdatedDeadline(selectedItem);
+
+      if (updatedItemRes.isErr())
+        return err({
+          ...updatedItemRes.error,
+          location: `${updatedItemRes.error.location} -> editItemDetails`,
+        });
+
+      updatedDeadline = updatedItemRes.value;
+      message = "Successfully edited item's deadline!";
+      break;
+    }
+  }
+};
+
+export default editItemDetails;

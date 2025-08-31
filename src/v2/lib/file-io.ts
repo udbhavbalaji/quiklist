@@ -1,11 +1,30 @@
 import fs from "fs";
 import path from "path";
-import { err, ok } from "neverthrow";
+import { ok } from "neverthrow";
 
-import { handleIOError } from "./handle-error";
+import { handleIOError } from "@v2/lib/handle-error";
 import { QLCompleteConfig } from "@v2/types/config";
 import { QLList, QLListOptions } from "@v2/types/list";
-import { LogLevel } from "@v2/types";
+import logger from "@v2/lib/logger";
+
+export const addToGitIgnore = () => {
+  try {
+    const ignoreRule = "\n# quiklist app data\n.quiklist/";
+    const gitignoreFilepath = path.join(process.cwd(), ".gitignore");
+    const currentContent = fs.readFileSync(gitignoreFilepath, "utf-8");
+
+    if (currentContent.includes(".quiklist/")) {
+      logger.debug("The file already exists in .gitingore");
+      return ok();
+    }
+
+    fs.appendFileSync(gitignoreFilepath, ignoreRule, "utf-8");
+    logger.info("Added .quiklist/ to .gitignore.");
+    return ok();
+  } catch (error) {
+    return handleIOError(error, "addToGitIgnore");
+  }
+};
 
 export const saveConfig = (config: QLCompleteConfig, filepath: string) =>
   writeData(config, filepath, "saveConfig");
@@ -31,12 +50,19 @@ const readData = <Data>(filepath: string, location: string) => {
     const dataJson = JSON.parse(data);
     return ok(dataJson as Data);
   } catch (error) {
+    console.log(error);
     return handleIOError(error, location);
   }
 };
 
+export const loadList = (filepath: string) =>
+  readData<QLList>(filepath, "loadList");
+
 export const loadConfig = (filepath: string) =>
   readData<QLCompleteConfig>(filepath, "loadConfig");
+
+export const loadMetadata = (filepath: string) =>
+  readData<QLListOptions>(filepath, "loadMetadata");
 
 export const createDir = (dirName: string) => {
   try {
@@ -65,9 +91,4 @@ export const getCurrentOrGlobalListInfo = (
     }
   }
   return { key: "global", value: globalAppDir };
-  // return err({
-  //   message: "No list found here.",
-  //   location: "isProcessWithinCreatedList",
-  //   messageLevel: "warn" as LogLevel,
-  // });
 };

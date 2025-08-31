@@ -6,6 +6,11 @@ export type QLGlobalListOptions = {
   sortOrder: SortOrder;
 };
 
+export type QLListBasicOptions = {
+  name: string;
+  appDir: string;
+};
+
 export type QLList = {
   checked: QLListItem[];
   unchecked: QLListItem[];

@@ -47,7 +47,10 @@ export const handleIOError = (error: any, location: string) => {
   if (error.code === "EACCES") {
     errorMessage = "Permission denied! Use 'sudo' with your command.";
   } else if (error.code === "ENOENT") {
-    errorMessage = "File/directory doesn't exist.";
+    errorMessage =
+      location === "loadMetadata"
+        ? "metadata_not_found"
+        : "File/directory doesn't exist.";
   } else if (error.code === "EISDIR") {
     errorMessage = "Expected file but found direcotory";
   } else if (error.code === "ENOTDIR") {
