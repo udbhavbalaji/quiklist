@@ -1,7 +1,13 @@
-import { loadList } from "@v2/lib/file-io";
-import { editItemPrompt } from "@v2/lib/prompt";
+import { loadList, saveList } from "@v2/lib/file-io";
+import logger from "@v2/lib/logger";
+import {
+  editItemPrompt,
+  getUpdatedItemText,
+  getUpdatedItemDeadline,
+  getUpdatedItemPriority,
+} from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle } from "@v2/types";
-import { err } from "neverthrow";
+import { err, ok } from "neverthrow";
 
 const editItemDetails = async (
   datasetFilepath: string,
@@ -61,7 +67,7 @@ const editItemDetails = async (
 
   switch (action) {
     case "item": {
-      const updatedItemRes = await getUpdatedItemDescription(selectedItem);
+      const updatedItemRes = await getUpdatedItemText(selectedItem);
 
       if (updatedItemRes.isErr())
         return err({
@@ -74,7 +80,7 @@ const editItemDetails = async (
       break;
     }
     case "priority": {
-      const updatedItemRes = await getUpdatedPriority(selectedItem);
+      const updatedItemRes = await getUpdatedItemPriority(selectedItem);
 
       if (updatedItemRes.isErr())
         return err({
@@ -87,7 +93,10 @@ const editItemDetails = async (
       break;
     }
     case "deadline": {
-      const updatedItemRes = await getUpdatedDeadline(selectedItem);
+      const updatedItemRes = await getUpdatedItemDeadline(
+        selectedItem,
+        dateFormat,
+      );
 
       if (updatedItemRes.isErr())
         return err({
@@ -100,6 +109,54 @@ const editItemDetails = async (
       break;
     }
   }
+
+  const updatedItem = {
+    ...selectedItem,
+    description: updatedDescription,
+    priority: updatedPriority,
+    deadline: updatedDeadline,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const updatedList = updatedItem.checked
+    ? {
+      ...itemOptions,
+      checked: itemOptions.checked.map((item) => {
+        if (item.id === updatedItem.id) {
+          const { id, ...mainItem } = updatedItem;
+          return mainItem;
+        }
+        const { id, ...mainItem } = item;
+        return mainItem;
+      }),
+    }
+    : {
+      ...itemOptions,
+      unchecked: itemOptions.unchecked.map((item) => {
+        if (item.id === updatedItem.id) {
+          const { id, ...mainItem } = updatedItem;
+          return mainItem;
+        }
+        const { id, ...mainItem } = item;
+        return mainItem;
+      }),
+    };
+
+  const saveListRes = saveList(updatedList, datasetFilepath);
+
+  if (saveListRes.isErr())
+    return err({
+      ...saveListRes.error,
+      location: `${saveListRes.error.location} -> editItemDetails`,
+    });
+
+  logger[
+    message === "Please choose an action for the highlighted item!"
+      ? "error"
+      : "info"
+  ](message);
+
+  return ok();
 };
 
 export default editItemDetails;

@@ -20,5 +20,5 @@ export const markCommand = new Command("mark").description(
 );
 export const deleteCommand = new Command("delete");
 export const editCommand = new Command("edit").description(
-  "Edit details of an item.",
+  "Edit item details.",
 );

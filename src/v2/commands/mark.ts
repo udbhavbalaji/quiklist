@@ -1,7 +1,8 @@
-import { loadList } from "@v2/lib/file-io";
+import { loadList, saveList } from "@v2/lib/file-io";
 import logger from "@v2/lib/logger";
 import { markListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle } from "@v2/types";
+import { QLListItem } from "@v2/types/list";
 import { err, ok } from "neverthrow";
 
 const markItems = async (
@@ -40,19 +41,58 @@ const markItems = async (
 
   const { removed, added } = itemsChangedRes.value;
 
-  // need to update the datalist
+  const updatedList = mutateList(itemOptions, removed, added);
+
+  const saveListRes = saveList(updatedList, datasetFilepath);
+
+  if (saveListRes.isErr())
+    return err({
+      ...saveListRes.error,
+      location: `${saveListRes.error.location} -> markListItems`,
+    });
 
   let loggerMessage;
 
   if (removed.length === 0 && added.length === 0) {
     loggerMessage = "No items changed in list.";
   } else {
-    loggerMessage = `${added.length > 0 ? `${added.length} items marked. ` : ""}${removed.length > 0 ? `${removed.length} items unmarked.` : ""}`;
+    loggerMessage = `${added.length > 0 ? `${added.length} item(s) marked. ` : ""}${removed.length > 0 ? `${removed.length} item(s) unmarked.` : ""}`;
   }
 
   logger.info(loggerMessage);
 
   return ok();
+};
+
+const mutateList = (
+  itemOptions: {
+    checked: (QLListItem & { id: string })[];
+    unchecked: (QLListItem & { id: string })[];
+  },
+  removedItems: string[],
+  addedItems: string[],
+) => {
+  const allItemsList = [...itemOptions.checked, ...itemOptions.unchecked];
+
+  const updatedList: { checked: QLListItem[]; unchecked: QLListItem[] } = {
+    checked: [],
+    unchecked: [],
+  };
+
+  allItemsList.forEach((item) => {
+    const { id, ...mainItem } = item;
+
+    if (removedItems.includes(id) && mainItem.checked) {
+      updatedList.unchecked.push({ ...mainItem, checked: false });
+    } else if (addedItems.includes(id) && !mainItem.checked) {
+      updatedList.checked.push({ ...mainItem, checked: true });
+    } else {
+      if (mainItem.checked) updatedList.checked.push(mainItem);
+      else updatedList.unchecked.push(mainItem);
+    }
+  });
+
+  return updatedList;
 };
 
 export default markItems;

@@ -61,7 +61,7 @@ const showListItems = async (
     renderItem(item, dateFormat, priorityStyle),
   );
   if (sortedItemOptions.unchecked.length === 0) {
-    logger.hex(INFO_HEX, "No items to show.");
+    logger.hex(ERROR_HEX, "No items to show.");
   }
 
   if (!unchecked) {
@@ -70,7 +70,7 @@ const showListItems = async (
       renderItem(item, dateFormat, priorityStyle),
     );
     if (sortedItemOptions.checked.length === 0) {
-      logger.hex(ERROR_HEX, "No items to show.");
+      logger.hex(INFO_HEX, "No items to show.");
     }
   }
 

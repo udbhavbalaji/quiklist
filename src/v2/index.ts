@@ -24,8 +24,9 @@ import showListItems from "./commands/show";
 import markCommand from "@/commands/mark";
 import markItems from "./commands/mark";
 import deleteItems from "./commands/delete";
+import editItemDetails from "./commands/edit";
 
-const configDir = path.join(os.homedir(), ".config", "quiklist");
+const configDir = path.join(os.homedir(), ".config", "quiklistv2");
 const configFilepath = path.join(configDir, "config.json");
 
 const launchQuiklist = (appVersion: string) => {
@@ -135,12 +136,53 @@ const launchQuiklist = (appVersion: string) => {
       );
 
     // edit command
-    editCommand;
+    editCommand.action(async () =>
+      asyncErrorHandler(
+        editItemDetails(
+          metadata.datasetFilepath,
+          config.dateFormat,
+          metadata.priorityStyle,
+        ),
+      ),
+    );
 
     // delete-list command
 
+    // registering the commands
+    if (listInfo.key === "global") {
+      app.addCommand(createListCommand);
+      addCommand.option("-g, --global", "Add item to global quiklist.", false);
+      showCommand.option(
+        "-g, --global",
+        "Show items from global quiklist.",
+        false,
+      );
+      markCommand.option(
+        "-g, --global",
+        "Mark/Unmark items in global quiklist.",
+        false,
+      );
+      editCommand.option(
+        "-g, --global",
+        "Edit items in global quiklist.",
+        false,
+      );
+      deleteCommand.option(
+        "-g, --global",
+        "Delete items from global quiklist.",
+        false,
+      );
+    } else {
+      // TODO: need to add this command
+      // app.addCommand(deleteListCommand);
+      console.log("im coming here");
+    }
+
+    app.addCommand(addCommand);
     app.addCommand(showCommand);
     app.addCommand(deleteCommand);
+    app.addCommand(markCommand);
+    app.addCommand(editCommand);
   }
   return app;
 };

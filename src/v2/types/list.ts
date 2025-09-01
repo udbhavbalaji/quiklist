@@ -30,4 +30,5 @@ export type QLListItem = {
   updatedAt: string;
 };
 
-export type Priority = "LOW" | "MEDIUM" | "HIGH";
+export const priorities = ["LOW", "MEDIUM", "HIGH"] as const;
+export type Priority = (typeof priorities)[number];

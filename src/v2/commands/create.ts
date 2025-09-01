@@ -23,9 +23,11 @@ const createList = async (
   config: QLCompleteConfig,
   configFilepath: string,
 ) => {
+  const currentDirpathStems = process.cwd().split(path.sep);
+
   const defaultListOptions: QLGlobalListOptions & QLListBasicOptions = {
-    name: path.dirname(process.cwd()),
-    appDir: path.join(process.cwd(), ".quiklist"),
+    name: currentDirpathStems[currentDirpathStems.length - 1],
+    appDir: path.join(process.cwd(), ".quiklistv2"),
     priorityStyle: "none",
     sortCriteria: "none",
     sortOrder: "ascending",

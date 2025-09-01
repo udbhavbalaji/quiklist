@@ -16,15 +16,14 @@ import {
 import { select as multiSelect, Separator } from "inquirer-select-pro";
 import {
   QLGlobalListOptions,
-  QLList,
   QLListBasicOptions,
   QLListItem,
+  priorities,
 } from "@v2/types/list";
 import { handlePromptError } from "@v2/lib/handle-error";
 import { pathValidator } from "./validator";
-import { INFO_HEX } from "@/lib/logger";
-import { getFormattedItem } from "./helpers";
-import { ERROR_HEX } from "./logger";
+import { formatDateFromISO, getFormattedItem } from "./helpers";
+import logger, { ERROR_HEX, INFO_HEX } from "./logger";
 
 export const getItemDescription = async (message: string) => {
   try {
@@ -157,8 +156,8 @@ export const getUpdatedItemDeadline = async (
     const answer = await input({
       message: "Enter updated deadline: ",
       default: item.deadline
-        ? errorHandler(renderDate(item.deadline, dateFormat))
-        : errorHandler(renderDate(new Date().toISOString(), dateFormat)),
+        ? formatDateFromISO(item.deadline, dateFormat)
+        : formatDateFromISO(new Date().toISOString(), dateFormat),
       prefill: "editable",
     });
     return ok(answer);
@@ -186,15 +185,16 @@ export const getUpdatedItemPriority = async (
 
 export const getUpdatedItemText = async (item: QLListItem & { id: string }) => {
   try {
-    const answer = await editor({
+    const answer = await input({
       message: "Make changes to the item",
-      default: item.item,
+      default: item.description,
+      prefill: "editable",
     });
     if (answer === "") {
       logger.error(
         "Cannot remove entire text content from item. You can delete this item using the 'delete' command",
       );
-      return ok(item.item);
+      return ok(item.description);
     }
     return ok(answer.trim());
   } catch (error) {
@@ -274,24 +274,34 @@ export const markListItems = async (
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
 ) => {
+  // todo: start here
+  const todoOptions = itemOptions.unchecked.map((item) => {
+    const { id, ...mainItem } = item;
+    return {
+      value: id,
+      name: chalk
+        .hex(ERROR_HEX)
+        .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
+    };
+  });
   const options = [
-    chalk.hex(INFO_HEX).bold("\n -- TODO -- "),
+    chalk.hex(ERROR_HEX).bold("\n -- TODO -- "),
     ...itemOptions.unchecked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(INFO_HEX)
+          .hex(ERROR_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),
-    chalk.hex(ERROR_HEX).bold("\n -- COMPLETED -- "),
+    chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
     ...itemOptions.checked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(ERROR_HEX)
+          .hex(INFO_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),
