@@ -1,0 +1,48 @@
+{
+  "checked": [
+    {
+      "checked": true,
+      "description": "make adding dir name to .gitignore optional",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:23:48.891Z",
+      "updatedAt": "2025-09-02T21:23:48.891Z"
+    },
+    {
+      "checked": true,
+      "description": "add config commands to view the current configuration",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:29.189Z",
+      "updatedAt": "2025-09-02T21:21:29.189Z"
+    }
+  ],
+  "unchecked": [
+    {
+      "checked": false,
+      "description": "create consolidated command to handle all possible scenarios through ql/qlg",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:05.155Z",
+      "updatedAt": "2025-09-02T21:21:05.156Z"
+    },
+    {
+      "checked": false,
+      "description": "add config commands to modify the current configuration",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:46.100Z",
+      "updatedAt": "2025-09-02T21:21:46.101Z"
+    },
+    {
+      "checked": false,
+      "description": "add email service, both sending to seld and others (maybe)",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-02T21:22:41.463Z",
+      "updatedAt": "2025-09-02T21:22:41.463Z"
+    },
+    {
+      "checked": false,
+      "description": "make using an editor for text input as an option in the main config",
+      "priority": "LOW",
+      "createdAt": "2025-09-02T21:23:12.628Z",
+      "updatedAt": "2025-09-02T21:23:12.629Z"
+    }
+  ]
+}
