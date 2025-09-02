@@ -17,16 +17,15 @@ import {
   deleteListCommand,
   editCommand,
   initAppCommand,
+  markCommand,
+  showCommand,
 } from "@v2/commands";
 import { addItemToList, handleAddItemCommand } from "./commands/add";
 import createList from "./commands/create";
-import showCommand from "@/commands/show";
 import showListItems from "./commands/show";
-import markCommand from "@/commands/mark";
 import markItems from "./commands/mark";
 import deleteItems from "./commands/delete";
 import editItemDetails from "./commands/edit";
-import logger from "./lib/logger";
 import { confirmPrompt } from "./lib/prompt";
 import deleteList from "./commands/delete-list";
 
