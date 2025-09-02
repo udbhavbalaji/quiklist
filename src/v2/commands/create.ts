@@ -1,4 +1,5 @@
 import path from "path";
+import { err, ok } from "neverthrow";
 
 import { QLCompleteConfig } from "@v2/types/config";
 import {
@@ -7,8 +8,7 @@ import {
   QLListBasicOptions,
   QLListOptions,
 } from "@v2/types/list";
-import { createListPrompt } from "@v2/lib/prompt";
-import { err, ok } from "neverthrow";
+import { confirmPrompt, createListPrompt } from "@v2/lib/prompt";
 import {
   addToGitIgnore,
   createDir,
@@ -16,7 +16,7 @@ import {
   saveList,
   saveMetadata,
 } from "@v2/lib/file-io";
-import logger from "@/lib/logger";
+import logger from "@v2/lib/logger";
 
 const createList = async (
   defaultFlag: boolean,
@@ -27,10 +27,10 @@ const createList = async (
 
   const defaultListOptions: QLGlobalListOptions & QLListBasicOptions = {
     name: currentDirpathStems[currentDirpathStems.length - 1],
-    appDir: path.join(process.cwd(), ".quiklistv2"),
+    appDir: path.join(process.cwd(), ".quiklist"),
     priorityStyle: "none",
     sortCriteria: "none",
-    sortOrder: "ascending",
+    sortOrder: "descending",
   };
 
   let chosenListOptions: QLGlobalListOptions & QLListBasicOptions;
@@ -102,13 +102,25 @@ const createList = async (
       location: `${saveConfigRes.error.location} -> createList`,
     });
 
-  const gitignoreRes = addToGitIgnore();
+  const userWantsListTracked = await confirmPrompt(
+    `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
+  );
 
-  if (gitignoreRes.isErr())
+  if (userWantsListTracked.isErr())
     return err({
-      ...gitignoreRes.error,
-      location: `${gitignoreRes.error.location} -> createList`,
+      ...userWantsListTracked.error,
+      location: `${userWantsListTracked.error.location} -> createList`,
     });
+
+  if (!userWantsListTracked.value) {
+    const gitignoreRes = addToGitIgnore();
+
+    if (gitignoreRes.isErr())
+      return err({
+        ...gitignoreRes.error,
+        location: `${gitignoreRes.error.location} -> createList`,
+      });
+  }
 
   logger.info(`Created list '${listMetadata.name}'`);
 

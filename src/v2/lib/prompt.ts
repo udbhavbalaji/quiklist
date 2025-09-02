@@ -1,10 +1,11 @@
 import z from "zod";
-import { err, ok } from "neverthrow";
+import { ok } from "neverthrow";
 import { input, select, confirm } from "@inquirer/prompts";
 import chalk from "chalk";
 import actionSelect from "inquirer-honshin-select";
+import { select as multiSelect, Separator } from "inquirer-select-pro";
 
-import { QLUserInputtedConfig } from "@v2/types/config";
+import { ConfigSelectOptions, QLUserInputtedConfig } from "@v2/types/config";
 import {
   date_formats,
   DateFormat,
@@ -13,17 +14,38 @@ import {
   sort_criteria,
   sort_orders,
 } from "@v2/types";
-import { select as multiSelect, Separator } from "inquirer-select-pro";
 import {
   QLGlobalListOptions,
   QLListBasicOptions,
   QLListItem,
+  QLPublicListConfig,
   priorities,
 } from "@v2/types/list";
 import { handlePromptError } from "@v2/lib/handle-error";
-import { pathValidator } from "./validator";
-import { formatDateFromISO, getFormattedItem } from "./helpers";
-import logger, { ERROR_HEX, INFO_HEX, PANIC_HEX } from "./logger";
+import { pathValidator } from "@v2/lib/validator";
+import { formatDateFromISO, getFormattedItem } from "@v2/lib/helpers";
+import logger, { INFO_HEX, PANIC_HEX } from "@v2/lib/logger";
+
+export const getUserChangeInConfig = async (listConfig: QLPublicListConfig) => {
+  const configOptions = Object.entries(listConfig);
+
+  const options = configOptions.map((item) => {
+    return {
+      value: `${item[0]}: ${item[1]}`,
+    };
+  });
+
+  try {
+    const selectedOptionToChange = await select({
+      message: "Select the setting you want to change: ",
+      choices: options,
+      loop: false,
+    });
+    return ok(selectedOptionToChange);
+  } catch (error) {
+    return handlePromptError(error, "getUserChangeInConfig");
+  }
+};
 
 export const getItemDescription = async (message: string) => {
   try {
@@ -40,6 +62,36 @@ export const getItemDescription = async (message: string) => {
     return ok(desc);
   } catch (error) {
     return handlePromptError(error, "getItemDescription");
+  }
+};
+
+export const selectPrompt = async (
+  message: string,
+  choices: ConfigSelectOptions,
+  defaultValue: string,
+) => {
+  try {
+    const selectedAnswer = await select({
+      message,
+      choices: choices.map((item) => item),
+      default: defaultValue,
+    });
+    return ok(selectedAnswer);
+  } catch (error) {
+    return handlePromptError(error, "selectPrompt");
+  }
+};
+
+export const textPrompt = async (message: string, defaultValue: string) => {
+  try {
+    const text = await input({
+      message,
+      default: defaultValue,
+      validate: (value) => (value === "" ? "This cannot be empty" : true),
+    });
+    return ok(text);
+  } catch (error) {
+    return handlePromptError(error, "textPrompt");
   }
 };
 
@@ -124,6 +176,7 @@ export const deleteListItems = async (
         typeof option === "string" ? new Separator(option) : option,
       ),
       multiple: true,
+      loop: false,
       pageSize: 20,
       theme: {
         icon: {
@@ -259,6 +312,8 @@ export const editItemPrompt = async (
         typeof option === "string" ? new Separator(option) : option,
       ),
       actions: actions,
+      loop: false,
+      pageSize: 20,
     });
     return ok(answer);
   } catch (error) {
@@ -321,6 +376,7 @@ export const markListItems = async (
       multiple: true,
       defaultValue: originalSelectedItems,
       pageSize: 20,
+      loop: false,
     });
 
     const removed = originalSelectedItems.filter(

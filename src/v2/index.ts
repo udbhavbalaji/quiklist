@@ -19,17 +19,19 @@ import {
   initAppCommand,
   markCommand,
   showCommand,
+  showConfigCommand,
 } from "@v2/commands";
-import { addItemToList, handleAddItemCommand } from "./commands/add";
-import createList from "./commands/create";
-import showListItems from "./commands/show";
-import markItems from "./commands/mark";
-import deleteItems from "./commands/delete";
-import editItemDetails from "./commands/edit";
-import { confirmPrompt } from "./lib/prompt";
-import deleteList from "./commands/delete-list";
+import { addItemToList, handleAddItemCommand } from "@v2/commands/add";
+import createList from "@v2/commands/create";
+import showListItems from "@v2/commands/show";
+import markItems from "@v2/commands/mark";
+import deleteItems from "@v2/commands/delete";
+import editItemDetails from "@v2/commands/edit";
+import { confirmPrompt } from "@v2/lib/prompt";
+import deleteList from "@v2/commands/delete-list";
+import { showConfig } from "./commands/config";
 
-const configDir = path.join(os.homedir(), ".config", "quiklistv2");
+const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
 
 export const launchQuiklist = (appVersion: string) => {
@@ -51,12 +53,6 @@ export const launchQuiklist = (appVersion: string) => {
 
     // check if current dir has a qlist initialized, if no then only show the init command, if yes then only show the delete-list command
     const listInfo = getCurrentOrGlobalListInfo(config.lists);
-
-    // // if list name is global, then add the -g flag to all commands and remove the delete-list command
-    // if (listInfo.key === "global") {
-    //   // otherwise add the delete-list command, and don't add the init command
-    // } else {
-    // }
 
     const metadata = errorHandler(
       loadMetadata(path.join(listInfo.value, "metadata.json")),
@@ -143,6 +139,8 @@ export const launchQuiklist = (appVersion: string) => {
             ? globalMetadata.priorityStyle
             : metadata.priorityStyle,
           options.global ? globalMetadata.name : metadata.name,
+          options.global ? globalMetadata.sortCriteria : metadata.sortCriteria,
+          options.global ? globalMetadata.sortOrder : metadata.sortOrder,
         ),
       ),
     );
@@ -161,6 +159,10 @@ export const launchQuiklist = (appVersion: string) => {
               ? globalMetadata.priorityStyle
               : metadata.priorityStyle,
             options.global ? globalMetadata.name : metadata.name,
+            options.global
+              ? globalMetadata.sortCriteria
+              : metadata.sortCriteria,
+            options.global ? globalMetadata.sortOrder : metadata.sortOrder,
           ),
         ),
       );
@@ -177,6 +179,8 @@ export const launchQuiklist = (appVersion: string) => {
             ? globalMetadata.priorityStyle
             : metadata.priorityStyle,
           options.global ? globalMetadata.name : metadata.name,
+          options.global ? globalMetadata.sortCriteria : metadata.sortCriteria,
+          options.global ? globalMetadata.sortOrder : metadata.sortOrder,
         ),
       ),
     );
@@ -199,6 +203,11 @@ export const launchQuiklist = (appVersion: string) => {
             ),
           );
       });
+
+    // show config command
+    showConfigCommand.action((options) =>
+      showConfig(config, options.global ? globalMetadata : metadata),
+    );
 
     // registering the commands
 
@@ -230,12 +239,17 @@ export const launchQuiklist = (appVersion: string) => {
       "Delete items from global quiklist.",
       isListGlobal,
     );
+    showConfigCommand.option(
+      "-g, --global",
+      "Show configuration for your global quiklist.",
+    );
 
     app.addCommand(addCommand);
     app.addCommand(showCommand);
     app.addCommand(deleteCommand);
     app.addCommand(markCommand);
     app.addCommand(editCommand);
+    app.addCommand(showConfigCommand);
 
     if (isListGlobal) {
       app.addCommand(createListCommand);
@@ -331,6 +345,8 @@ export const launchGlobalQuiklist = (appVersion: string) => {
             config.dateFormat,
             globalMetadata.priorityStyle,
             globalMetadata.name,
+            globalMetadata.sortCriteria,
+            globalMetadata.sortOrder,
           ),
         ),
       );
@@ -345,6 +361,8 @@ export const launchGlobalQuiklist = (appVersion: string) => {
             config.dateFormat,
             globalMetadata.priorityStyle,
             globalMetadata.name,
+            globalMetadata.sortCriteria,
+            globalMetadata.sortOrder,
           ),
         ),
       );
@@ -359,14 +377,21 @@ export const launchGlobalQuiklist = (appVersion: string) => {
             config.dateFormat,
             globalMetadata.priorityStyle,
             globalMetadata.name,
+            globalMetadata.sortCriteria,
+            globalMetadata.sortOrder,
           ),
         ),
       );
+
+    // show config command
+    showConfigCommand.action(() => showConfig(config, globalMetadata));
+
     app.addCommand(addCommand);
     app.addCommand(showCommand);
     app.addCommand(markCommand);
     app.addCommand(editCommand);
     app.addCommand(deleteCommand);
+    app.addCommand(showConfigCommand);
   }
   return app;
 };

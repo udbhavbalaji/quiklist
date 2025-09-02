@@ -1,9 +1,7 @@
 import { DateFormat, SortOrder } from "@v2/types";
-import { err } from "neverthrow";
-import logger from "./logger";
+import logger, { PANIC_HEX, INFO_HEX } from "@v2/lib/logger";
 import { Priority, QLList, QLListItem } from "@v2/types/list";
 import { PriorityStyle } from "@v2/types";
-import { ERROR_HEX, INFO_HEX } from "@/lib/logger";
 
 const priorityMapping: Record<Priority, number> = {
   HIGH: 3,
@@ -113,7 +111,7 @@ export const renderItem = (
   priorityStyle: PriorityStyle,
 ) => {
   logger.hex(
-    item.checked ? INFO_HEX : ERROR_HEX,
+    item.checked ? INFO_HEX : PANIC_HEX,
     getFormattedItem(item, format, priorityStyle),
   );
 };
@@ -156,10 +154,10 @@ export const sortByPriority = (list: QLList, sortOrder: SortOrder) => {
     };
   }
   return {
-    unchecked: list.checked.sort(
+    unchecked: list.unchecked.sort(
       (a, b) => priorityMapping[a.priority] - priorityMapping[b.priority],
     ),
-    checked: list.unchecked.sort(
+    checked: list.checked.sort(
       (a, b) => priorityMapping[a.priority] - priorityMapping[b.priority],
     ),
   };
@@ -189,4 +187,48 @@ const inverseDateTransformer: Record<DateFormat, (date: string) => string> = {
     return `${dateParts[2]}/${dateParts[1].padStart(2, "0")}/${dateParts[0].padStart(2, "0")}`;
   },
   "YYYY/MM/DD": (date: string) => date.replace("/", "-"),
+};
+
+export const getFormattedJSON = (
+  obj: Record<any, any> | Array<any>,
+  indentLevel: number = 0,
+): string => {
+  let output = "";
+  let indent = "  ".repeat(indentLevel);
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return "[]";
+
+    output += "[\n";
+
+    obj.forEach((item) => {
+      if (typeof item === "object") {
+        output += `${indent}  ${getFormattedJSON(item, indentLevel + 1)},\n`;
+      } else {
+        output += `${indent}  ${item},\n`;
+      }
+    });
+
+    output += `${indent}]`;
+  } else {
+    const props = Object.keys(obj);
+
+    if (props.length === 0) return "{}";
+
+    output += "{\n";
+
+    for (const prop of props) {
+      if (typeof obj[prop] === "object") {
+        output += `${indent}  ${prop}: ${getFormattedJSON(obj[prop], indentLevel + 1)},\n`;
+      } else if (typeof obj[prop] === "string") {
+        output += `${indent}  ${prop}: "${obj[prop]}",\n`;
+      } else {
+        output += `${indent}  ${prop}: ${obj[prop]},\n`;
+      }
+    }
+
+    output += `${indent}}`;
+  }
+
+  return output;
 };

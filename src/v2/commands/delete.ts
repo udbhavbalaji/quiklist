@@ -1,15 +1,23 @@
+import { err, ok } from "neverthrow";
+
 import { loadList, saveList } from "@v2/lib/file-io";
-import { getItemCountsMessage } from "@v2/lib/helpers";
+import {
+  getItemCountsMessage,
+  sortByCreatedDate,
+  sortByDeadline,
+  sortByPriority,
+} from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import { deleteListItems } from "@v2/lib/prompt";
-import { DateFormat, PriorityStyle } from "@v2/types";
-import { err, ok } from "neverthrow";
+import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 
 const deleteItems = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
   listName: string,
+  sortCriteria: SortCriteria,
+  sortOrder: SortOrder,
 ) => {
   const itemsRes = loadList(datasetFilepath);
 
@@ -29,6 +37,21 @@ const deleteItems = async (
   };
 
   logger.hex(DEBUG_HEX, getItemCountsMessage(itemOptions, listName));
+
+  switch (sortCriteria) {
+    case "priority": {
+      sortByPriority(itemOptions, sortOrder);
+      break;
+    }
+    case "deadline": {
+      sortByDeadline(itemOptions, sortOrder);
+      break;
+    }
+    case "created date": {
+      sortByCreatedDate(itemOptions, sortOrder);
+      break;
+    }
+  }
 
   const itemsDeletedRes = await deleteListItems(
     itemOptions,

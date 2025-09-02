@@ -1,3 +1,5 @@
+import { err, ok } from "neverthrow";
+
 import { loadList } from "@v2/lib/file-io";
 import {
   getItemCountsMessage,
@@ -6,10 +8,8 @@ import {
   sortByDeadline,
   sortByPriority,
 } from "@v2/lib/helpers";
-import logger, { INFO_HEX, ERROR_HEX, DEBUG_HEX } from "@v2/lib/logger";
+import logger, { INFO_HEX, PANIC_HEX, DEBUG_HEX } from "@v2/lib/logger";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
-import { QLList } from "@v2/types/list";
-import { err, ok } from "neverthrow";
 
 const showListItems = async (
   filepath: string,
@@ -37,48 +37,42 @@ const showListItems = async (
     }),
   };
 
-  let sortedItemOptions: QLList;
-
   switch (sortCriteria) {
     case "priority": {
-      sortedItemOptions = sortByPriority(itemOptions, sortOrder);
+      sortByPriority(itemOptions, sortOrder);
       break;
     }
     case "deadline": {
-      sortedItemOptions = sortByDeadline(itemOptions, sortOrder);
+      sortByDeadline(itemOptions, sortOrder);
       break;
     }
     case "created date": {
-      sortedItemOptions = sortByCreatedDate(itemOptions, sortOrder);
-      break;
-    }
-    default: {
-      sortedItemOptions = itemsRes.value;
+      sortByCreatedDate(itemOptions, sortOrder);
       break;
     }
   }
 
-  logger.hex(ERROR_HEX, "\n -- TODO -- ");
-  sortedItemOptions.unchecked.forEach((item) =>
+  logger.hex(PANIC_HEX, "\n -- TODO -- ");
+  itemOptions.unchecked.forEach((item) =>
     renderItem(item, dateFormat, priorityStyle),
   );
-  if (sortedItemOptions.unchecked.length === 0) {
-    logger.hex(ERROR_HEX, "No items to show.");
+  if (itemOptions.unchecked.length === 0) {
+    logger.hex(PANIC_HEX, "No items to show.");
   }
 
   if (!unchecked) {
     logger.hex(INFO_HEX, "\n -- COMPLETED -- ");
-    sortedItemOptions.checked.forEach((item) =>
+    itemOptions.checked.forEach((item) =>
       renderItem(item, dateFormat, priorityStyle),
     );
-    if (sortedItemOptions.checked.length === 0) {
+    if (itemOptions.checked.length === 0) {
       logger.hex(INFO_HEX, "No items to show.");
     }
   }
 
   logger.hex(DEBUG_HEX, "");
 
-  logger.hex(DEBUG_HEX, getItemCountsMessage(sortedItemOptions, listName));
+  logger.hex(DEBUG_HEX, getItemCountsMessage(itemOptions, listName));
 
   return ok();
 };

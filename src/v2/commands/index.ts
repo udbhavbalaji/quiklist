@@ -23,3 +23,9 @@ export const editCommand = new Command("edit").description(
   "Edit item details.",
 );
 export const deleteListCommand = new Command("delete-list");
+export const showConfigCommand = new Command("config:show").description(
+  "Show quiklist's current configuration",
+);
+export const modifyConfigCommand = new Command("config:edit").description(
+  "Edit quiklist's current configuration.",
+);

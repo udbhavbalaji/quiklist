@@ -1,5 +1,6 @@
-import { LogLevel, QLError } from "@v2/types";
 import { err, Result } from "neverthrow";
+
+import { LogLevel, QLError } from "@v2/types";
 import logger from "@v2/lib/logger";
 
 export const asyncErrorHandler = async <ResultType>(

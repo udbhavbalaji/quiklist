@@ -1,5 +1,13 @@
+import { err, ok } from "neverthrow";
+
 import { loadList, saveList } from "@v2/lib/file-io";
-import { getItemCountsMessage } from "@v2/lib/helpers";
+import {
+  formatDateToISO,
+  getItemCountsMessage,
+  sortByCreatedDate,
+  sortByDeadline,
+  sortByPriority,
+} from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
   editItemPrompt,
@@ -7,14 +15,16 @@ import {
   getUpdatedItemDeadline,
   getUpdatedItemPriority,
 } from "@v2/lib/prompt";
-import { DateFormat, PriorityStyle } from "@v2/types";
-import { err, ok } from "neverthrow";
+import { dateValidator } from "@v2/lib/validator";
+import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 
 const editItemDetails = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
   listName: string,
+  sortCriteria: SortCriteria,
+  sortOrder: SortOrder,
 ) => {
   const itemsRes = loadList(datasetFilepath);
 
@@ -34,6 +44,21 @@ const editItemDetails = async (
   };
 
   logger.hex(DEBUG_HEX, getItemCountsMessage(itemOptions, listName));
+
+  switch (sortCriteria) {
+    case "priority": {
+      sortByPriority(itemOptions, sortOrder);
+      break;
+    }
+    case "deadline": {
+      sortByDeadline(itemOptions, sortOrder);
+      break;
+    }
+    case "created date": {
+      sortByCreatedDate(itemOptions, sortOrder);
+      break;
+    }
+  }
 
   const editItemDetailsRes = await editItemPrompt(
     itemOptions,
@@ -108,7 +133,22 @@ const editItemDetails = async (
           location: `${updatedItemRes.error.location} -> editItemDetails`,
         });
 
-      updatedDeadline = updatedItemRes.value;
+      if (updatedItemRes.value === "") {
+        updatedDeadline = undefined;
+      } else {
+        const validatedDeadline = await dateValidator(
+          formatDateToISO(updatedItemRes.value, dateFormat),
+        );
+
+        if (typeof validatedDeadline === "string") {
+          logger.error(`${validatedDeadline}. Operation aborted.`);
+          process.exit(0);
+        }
+
+        updatedDeadline = new Date(
+          formatDateToISO(updatedItemRes.value, dateFormat),
+        ).toISOString();
+      }
       message = "Successfully edited item's deadline!";
       break;
     }
@@ -124,7 +164,11 @@ const editItemDetails = async (
 
   const updatedList = updatedItem.checked
     ? {
-      ...itemOptions,
+      // ...itemOptions,
+      unchecked: itemOptions.unchecked.map((item) => {
+        const { id, ...mainItem } = item;
+        return mainItem;
+      }),
       checked: itemOptions.checked.map((item) => {
         if (item.id === updatedItem.id) {
           const { id, ...mainItem } = updatedItem;
@@ -135,7 +179,11 @@ const editItemDetails = async (
       }),
     }
     : {
-      ...itemOptions,
+      // ...itemOptions,
+      checked: itemOptions.checked.map((item) => {
+        const { id, ...mainItem } = item;
+        return mainItem;
+      }),
       unchecked: itemOptions.unchecked.map((item) => {
         if (item.id === updatedItem.id) {
           const { id, ...mainItem } = updatedItem;

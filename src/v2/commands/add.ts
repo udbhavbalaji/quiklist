@@ -42,10 +42,12 @@ export const handleAddItemCommand = async (
 
     if (typeof validatedDeadline === "string") {
       logger.error(`${validatedDeadline}. Operation aborted.`);
-      process.exit(1);
+      process.exit(0);
     }
 
-    deadline = formatDateToISO(options.deadline, dateFormat);
+    deadline = new Date(
+      formatDateToISO(options.deadline, dateFormat),
+    ).toISOString();
   }
 
   return ok({ itemDesc, priority, deadline });

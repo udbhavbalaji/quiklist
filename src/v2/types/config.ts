@@ -1,4 +1,4 @@
-import { DateFormat } from ".";
+import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from ".";
 
 export type QLUserInputtedConfig = {
   userName: string;
@@ -8,3 +8,9 @@ export type QLUserInputtedConfig = {
 export type QLCompleteConfig = QLUserInputtedConfig & {
   lists: Record<string, string>;
 };
+
+export type ConfigSelectOptions =
+  | readonly PriorityStyle[]
+  | readonly SortCriteria[]
+  | readonly SortOrder[]
+  | readonly DateFormat[];

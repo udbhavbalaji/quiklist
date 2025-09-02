@@ -1,6 +1,6 @@
+import { err, ok } from "neverthrow";
 import path from "path";
 import os from "os";
-import { err, ok } from "neverthrow";
 
 import { createDir, saveConfig, saveList, saveMetadata } from "@v2/lib/file-io";
 import { QLCompleteConfig, QLUserInputtedConfig } from "@v2/types/config";
