@@ -1,24 +1,24 @@
-import { input, select, confirm, editor } from "@inquirer/prompts";
-import { LogLevel } from "@/types/logger";
 import { err, ok } from "neverthrow";
 import { select as multiSelect, Separator } from "inquirer-select-pro";
 import { default as tgl } from "inquirer-toggle";
 import newActionSelect from "inquirer-honshin-select";
 
-import logger from "@/lib/logger";
-import { QLUserInputtedConfig } from "@/types/config";
-import { date_formats, DateFormat } from "@/types";
+import { input, select, confirm, editor } from "@inquirer/prompts";
+import { LogLevel } from "@v1/types/logger";
+import logger from "@v1/lib/logger";
+import { QLUserInputtedConfig } from "@v1/types/config";
+import { date_formats, DateFormat } from "@v1/types";
 import {
   InternalListOption,
   ListOptions,
   priorities,
   sort_criteria,
   sort_orders,
-} from "@/types/list";
-import { pathValidator } from "@/lib/validator";
-import { priority_styles } from "@/types/list";
-import { renderDate } from "@/lib/render";
-import { errorHandler } from "./error-handle";
+} from "@v1/types/list";
+import { pathValidator } from "@v1/lib/validator";
+import { priority_styles } from "@v1/types/list";
+import { renderDate } from "@v1/lib/render";
+import { errorHandler } from "@v1/lib/error-handle";
 
 // @ts-ignore - only works this way: https://github.com/skarahoda/inquirer-toggle/issues/3
 const toggle = tgl.default;

@@ -2,17 +2,17 @@ import { Command } from "commander";
 import * as path from "path";
 import { err, ok } from "neverthrow";
 
-import { initListPrompt } from "@/lib/prompt";
-import { ListMetadata, ListOptions } from "@/types/list";
+import { initListPrompt } from "@v1/lib/prompt";
+import { ListMetadata, ListOptions } from "@v1/types/list";
 import {
   addToGitIgnore,
   createDir,
   saveConfig,
   saveData,
   saveMetadata,
-} from "@/lib/file-io";
-import logger from "@/lib/logger";
-import { QLCompleteConfig } from "@/types/config";
+} from "@v1/lib/file-io";
+import logger from "@v1/lib/logger";
+import { QLCompleteConfig } from "@v1/types/config";
 
 export const initializeList = async (
   defaultListFlag: boolean,

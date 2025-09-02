@@ -1,9 +1,9 @@
-import { loadMetadata, removeDir, saveConfig } from "@/lib/file-io";
-import { QLCompleteConfig } from "@/types/config";
+import { loadMetadata, removeDir, saveConfig } from "@v1/lib/file-io";
+import { QLCompleteConfig } from "@v1/types/config";
 import { Command } from "commander";
 import { err, ok } from "neverthrow";
-import { errorHandler } from "@/lib/error-handle";
-import logger from "@/lib/logger";
+import { errorHandler } from "@v1/lib/error-handle";
+import logger from "@v1/lib/logger";
 
 export const deleteList = async (
   metadataFilepath: string,

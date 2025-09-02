@@ -1,10 +1,10 @@
 import { err, ok } from "neverthrow";
 import * as path from "path";
 
-import { QLCompleteConfig, QLUserInputtedConfig } from "@/types/config";
-import { configurePrompt } from "@/lib/prompt";
-import { createDir, saveConfig } from "@/lib/file-io";
-import logger from "@/lib/logger";
+import { QLCompleteConfig, QLUserInputtedConfig } from "@v1/types/config";
+import { configurePrompt } from "@v1/lib/prompt";
+import { createDir, saveConfig } from "@v1/lib/file-io";
+import logger from "@v1/lib/logger";
 
 export const initGlobalConfig = async (configFilepath: string) => {
   const ensureConfigDirExists = createDir(path.dirname(configFilepath));

@@ -1,17 +1,18 @@
-import { errorHandler } from "@/lib/error-handle";
-import { loadData, saveData } from "@/lib/file-io";
-import { splitListItems } from "@/lib/list";
-import logger from "@/lib/logger";
+import { Command } from "commander";
+import { err, ok } from "neverthrow";
+
+import { errorHandler } from "@v1/lib/error-handle";
+import { loadData, saveData } from "@v1/lib/file-io";
+import { splitListItems } from "@v1/lib/list";
+import logger from "@v1/lib/logger";
 import {
   editItemPrompt,
   getUpdatedItemDeadline,
   getUpdatedItemPriority,
   getUpdatedItemText,
-} from "@/lib/prompt";
-import { renderDate } from "@/lib/render";
-import { DateFormat } from "@/types";
-import { Command } from "commander";
-import { err, ok } from "neverthrow";
+} from "@v1/lib/prompt";
+import { renderDate } from "@v1/lib/render";
+import { DateFormat } from "@v1/types";
 
 export const editItemInList = async (
   filepath: string,
