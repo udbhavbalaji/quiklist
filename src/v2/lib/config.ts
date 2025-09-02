@@ -1,4 +1,5 @@
 import path from "path";
+import os from "os";
 import { err, ok } from "neverthrow";
 
 import { createDir, saveConfig, saveList, saveMetadata } from "@v2/lib/file-io";
@@ -7,7 +8,7 @@ import { configurePrompt, globalListPrompt } from "@v2/lib/prompt";
 import { QLGlobalListOptions, QLList, QLListOptions } from "@v2/types/list";
 import logger from "@v2/lib/logger";
 
-const globalAppDir = path.join(process.cwd(), ".quiklist");
+const globalAppDir = path.join(os.homedir(), ".quiklist");
 
 export const initGlobalConfig = async (configFilepath: string) => {
   const ensureDirExists = createDir(path.dirname(configFilepath));

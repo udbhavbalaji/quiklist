@@ -1,5 +1,6 @@
 import { loadList, saveList } from "@v2/lib/file-io";
-import logger from "@v2/lib/logger";
+import { getItemCountsMessage } from "@v2/lib/helpers";
+import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
   editItemPrompt,
   getUpdatedItemText,
@@ -13,6 +14,7 @@ const editItemDetails = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
+  listName: string,
 ) => {
   const itemsRes = loadList(datasetFilepath);
 
@@ -30,6 +32,8 @@ const editItemDetails = async (
       return { ...item, id: `${item.description}:${item.createdAt}` };
     }),
   };
+
+  logger.hex(DEBUG_HEX, getItemCountsMessage(itemOptions, listName));
 
   const editItemDetailsRes = await editItemPrompt(
     itemOptions,

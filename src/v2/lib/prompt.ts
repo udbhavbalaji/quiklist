@@ -23,7 +23,7 @@ import {
 import { handlePromptError } from "@v2/lib/handle-error";
 import { pathValidator } from "./validator";
 import { formatDateFromISO, getFormattedItem } from "./helpers";
-import logger, { ERROR_HEX, INFO_HEX } from "./logger";
+import logger, { ERROR_HEX, INFO_HEX, PANIC_HEX } from "./logger";
 
 export const getItemDescription = async (message: string) => {
   try {
@@ -95,23 +95,23 @@ export const deleteListItems = async (
   priorityStyle: PriorityStyle,
 ) => {
   const options = [
-    chalk.hex(INFO_HEX).bold("\n -- TODO -- "),
+    chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
     ...itemOptions.unchecked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(INFO_HEX)
+          .hex(PANIC_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),
-    chalk.hex(ERROR_HEX).bold("\n -- COMPLETED -- "),
+    chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
     ...itemOptions.checked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(ERROR_HEX)
+          .hex(INFO_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),
@@ -135,7 +135,7 @@ export const deleteListItems = async (
     if (deletedItems.length > 0) {
       const confirmed = await confirm({
         message: "Are you sure you want to delete these items? ",
-        default: false,
+        default: true,
       });
 
       if (!confirmed) deletedItems = [];
@@ -211,23 +211,23 @@ export const editItemPrompt = async (
   priorityStyle: PriorityStyle,
 ) => {
   const options = [
-    chalk.hex(INFO_HEX).bold("\n -- TODO -- "),
+    chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
     ...itemOptions.unchecked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(INFO_HEX)
+          .hex(PANIC_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),
-    chalk.hex(ERROR_HEX).bold("\n -- COMPLETED -- "),
+    chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
     ...itemOptions.checked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(ERROR_HEX)
+          .hex(INFO_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
         checked: true,
       };
@@ -266,6 +266,18 @@ export const editItemPrompt = async (
   }
 };
 
+export const confirmPrompt = async (message: string) => {
+  try {
+    const confirmed = await confirm({
+      message,
+      default: false,
+    });
+    return ok(confirmed);
+  } catch (error) {
+    return handlePromptError(error, "confirmPrompt");
+  }
+};
+
 export const markListItems = async (
   itemOptions: {
     checked: (QLListItem & { id: string })[];
@@ -275,23 +287,14 @@ export const markListItems = async (
   priorityStyle: PriorityStyle,
 ) => {
   // todo: start here
-  const todoOptions = itemOptions.unchecked.map((item) => {
-    const { id, ...mainItem } = item;
-    return {
-      value: id,
-      name: chalk
-        .hex(ERROR_HEX)
-        .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-    };
-  });
   const options = [
-    chalk.hex(ERROR_HEX).bold("\n -- TODO -- "),
+    chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
     ...itemOptions.unchecked.map((item) => {
       const { id, ...mainItem } = item;
       return {
         value: id,
         name: chalk
-          .hex(ERROR_HEX)
+          .hex(PANIC_HEX)
           .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
       };
     }),

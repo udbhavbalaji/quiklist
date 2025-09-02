@@ -14,6 +14,7 @@ import {
   addCommand,
   createListCommand,
   deleteCommand,
+  deleteListCommand,
   editCommand,
   initAppCommand,
 } from "@v2/commands";
@@ -25,15 +26,19 @@ import markCommand from "@/commands/mark";
 import markItems from "./commands/mark";
 import deleteItems from "./commands/delete";
 import editItemDetails from "./commands/edit";
+import logger from "./lib/logger";
+import { confirmPrompt } from "./lib/prompt";
+import deleteList from "./commands/delete-list";
 
 const configDir = path.join(os.homedir(), ".config", "quiklistv2");
 const configFilepath = path.join(configDir, "config.json");
 
-const launchQuiklist = (appVersion: string) => {
+export const launchQuiklist = (appVersion: string) => {
   const app = new Command("quiklist")
     .description("The fastest checklist app for the terminal.")
     .version(appVersion)
-    .alias("ql");
+    .alias("ql")
+    .action(() => app.help());
 
   if (!fs.existsSync(configFilepath)) {
     initAppCommand.action(async () =>
@@ -58,6 +63,10 @@ const launchQuiklist = (appVersion: string) => {
       loadMetadata(path.join(listInfo.value, "metadata.json")),
     );
 
+    const globalMetadata = errorHandler(
+      loadMetadata(path.join(config.lists.global, "metadata.json")),
+    );
+
     ////  extra config for each command
 
     // createList command
@@ -79,10 +88,204 @@ const launchQuiklist = (appVersion: string) => {
           "--h, --high",
           "Specify that the item has a 'HIGH' priority.",
           false,
+        );
+    }
+
+    addCommand
+      .option(
+        "-d, --deadline [deadline]",
+        `Specify the task's deadline in your selected date format. (Chosen format: ${config.dateFormat})`,
+      )
+      .argument("[item_desc...]", "Text description for the list item.")
+      .action(async (item_desc: string[], options) => {
+        const { itemDesc, priority, deadline } = await asyncErrorHandler(
+          handleAddItemCommand(item_desc, options, config.dateFormat),
+        );
+        return asyncErrorHandler(
+          addItemToList(
+            options.global
+              ? globalMetadata.datasetFilepath
+              : metadata.datasetFilepath,
+            itemDesc,
+            priority,
+            deadline,
+          ),
+        );
+      });
+
+    // show command
+    showCommand.action(async (options) => {
+      return asyncErrorHandler(
+        showListItems(
+          options.global
+            ? globalMetadata.datasetFilepath
+            : metadata.datasetFilepath,
+          options.unchecked,
+          config.dateFormat,
+          options.global
+            ? globalMetadata.priorityStyle
+            : metadata.priorityStyle,
+          options.global ? globalMetadata.sortCriteria : metadata.sortCriteria,
+          options.global ? globalMetadata.sortOrder : metadata.sortOrder,
+          options.global ? globalMetadata.name : metadata.name,
+        ),
+      );
+    });
+
+    // mark command
+    markCommand.action(async (options) =>
+      asyncErrorHandler(
+        markItems(
+          options.global
+            ? globalMetadata.datasetFilepath
+            : metadata.datasetFilepath,
+          config.dateFormat,
+          options.global
+            ? globalMetadata.priorityStyle
+            : metadata.priorityStyle,
+          options.global ? globalMetadata.name : metadata.name,
+        ),
+      ),
+    );
+
+    // delete command
+    deleteCommand
+      .description(`Delete item from '${metadata.name}'`)
+      .action(async (options) =>
+        asyncErrorHandler(
+          deleteItems(
+            options.global
+              ? globalMetadata.datasetFilepath
+              : metadata.datasetFilepath,
+            config.dateFormat,
+            options.global
+              ? globalMetadata.priorityStyle
+              : metadata.priorityStyle,
+            options.global ? globalMetadata.name : metadata.name,
+          ),
+        ),
+      );
+
+    // edit command
+    editCommand.action(async (options) =>
+      asyncErrorHandler(
+        editItemDetails(
+          options.global
+            ? globalMetadata.datasetFilepath
+            : metadata.datasetFilepath,
+          config.dateFormat,
+          options.global
+            ? globalMetadata.priorityStyle
+            : metadata.priorityStyle,
+          options.global ? globalMetadata.name : metadata.name,
+        ),
+      ),
+    );
+
+    // delete-list command
+    deleteListCommand
+      .description(`Delete '${metadata.name}'.`)
+      .action(async () => {
+        const userConfirmed = await asyncErrorHandler(
+          confirmPrompt(
+            `Are you sure you want to delete '${metadata.name}'? This action cannot be undone.`,
+          ),
+        );
+        if (userConfirmed)
+          return asyncErrorHandler(
+            deleteList(
+              path.join(listInfo.value, "metadata.json"),
+              config,
+              configFilepath,
+            ),
+          );
+      });
+
+    // registering the commands
+
+    const isListGlobal = listInfo.key === "global";
+
+    // set up global flags for each of the commands
+    addCommand.option(
+      "-g, --global",
+      "Add item to global quiklist.",
+      isListGlobal,
+    );
+    showCommand.option(
+      "-g, --global",
+      "Show items from global quiklist.",
+      isListGlobal,
+    );
+    markCommand.option(
+      "-g, --global",
+      "Mark/Unmark items in global quiklist.",
+      isListGlobal,
+    );
+    editCommand.option(
+      "-g, --global",
+      "Edit items in global quiklist.",
+      isListGlobal,
+    );
+    deleteCommand.option(
+      "-g, --global",
+      "Delete items from global quiklist.",
+      isListGlobal,
+    );
+
+    app.addCommand(addCommand);
+    app.addCommand(showCommand);
+    app.addCommand(deleteCommand);
+    app.addCommand(markCommand);
+    app.addCommand(editCommand);
+
+    if (isListGlobal) {
+      app.addCommand(createListCommand);
+    } else {
+      app.addCommand(deleteListCommand);
+    }
+  }
+  return app;
+};
+
+export const launchGlobalQuiklist = (appVersion: string) => {
+  const app = new Command("quiklist-global")
+    .alias("qlg")
+    .description("The fastest checklist app for the terminal.")
+    .version(appVersion)
+    .action(() => app.help());
+
+  if (!fs.existsSync(configFilepath)) {
+    initAppCommand.action(async () =>
+      asyncErrorHandler(initGlobalConfig(configFilepath)),
+    );
+
+    app.addCommand(initAppCommand);
+  } else {
+    const config = errorHandler(loadConfig(configFilepath));
+    const globalMetadata = errorHandler(
+      loadMetadata(path.join(config.lists.global, "metadata.json")),
+    );
+
+    //// extra config for each command
+
+    // add command
+    addCommand
+      .description("Add item to your global quiklist.")
+      .option(
+        "-d, --deadline [deadline]",
+        `Specify the task's deadline in your selected date format. (Chosen format: ${config.dateFormat})`,
+      );
+    if (globalMetadata.priorityStyle !== "none") {
+      addCommand
+        .option(
+          "-m, --medium",
+          "Specify that the item has a 'MEDIUM' priority.",
+          false,
         )
         .option(
-          "-d, --deadline [deadline]",
-          `Specify the task's deadline in your selected date format. (Chosen format: ${config.dateFormat})`,
+          "--h, --high",
+          "Specify that the item has a 'HIGH' priority.",
+          false,
         );
     }
 
@@ -93,98 +296,78 @@ const launchQuiklist = (appVersion: string) => {
           handleAddItemCommand(item_desc, options, config.dateFormat),
         );
         return asyncErrorHandler(
-          addItemToList(metadata.datasetFilepath, itemDesc, priority, deadline),
+          addItemToList(
+            globalMetadata.datasetFilepath,
+            itemDesc,
+            priority,
+            deadline,
+          ),
         );
       });
 
     // show command
-    showCommand.action(async (options) =>
-      asyncErrorHandler(
-        showListItems(
-          metadata.datasetFilepath,
-          options.unchecked,
-          config.dateFormat,
-          metadata.priorityStyle,
-          metadata.sortCriteria,
-          metadata.sortOrder,
-        ),
-      ),
-    );
+    showCommand
+      .description("Show items in your global quiklist.")
+      .action(async (options) => {
+        return asyncErrorHandler(
+          showListItems(
+            globalMetadata.datasetFilepath,
+            options.unchecked,
+            config.dateFormat,
+            globalMetadata.priorityStyle,
+            globalMetadata.sortCriteria,
+            globalMetadata.sortOrder,
+            globalMetadata.name,
+          ),
+        );
+      });
 
     // mark command
-    markCommand.action(async () =>
-      asyncErrorHandler(
-        markItems(
-          metadata.datasetFilepath,
-          config.dateFormat,
-          metadata.priorityStyle,
-        ),
-      ),
-    );
-
-    // delete command
-    deleteCommand
-      .description(`Delete item from '${metadata.name}'`)
+    markCommand
+      .description("Mark/Unmark items in your global quiklist.")
       .action(async () =>
         asyncErrorHandler(
-          deleteItems(
-            metadata.datasetFilepath,
+          markItems(
+            globalMetadata.datasetFilepath,
             config.dateFormat,
-            metadata.priorityStyle,
+            globalMetadata.priorityStyle,
+            globalMetadata.name,
           ),
         ),
       );
 
     // edit command
-    editCommand.action(async () =>
-      asyncErrorHandler(
-        editItemDetails(
-          metadata.datasetFilepath,
-          config.dateFormat,
-          metadata.priorityStyle,
+    editCommand
+      .description("Edit item details in your global quiklist.")
+      .action(async () =>
+        asyncErrorHandler(
+          editItemDetails(
+            globalMetadata.datasetFilepath,
+            config.dateFormat,
+            globalMetadata.priorityStyle,
+            globalMetadata.name,
+          ),
         ),
-      ),
-    );
+      );
 
-    // delete-list command
-
-    // registering the commands
-    if (listInfo.key === "global") {
-      app.addCommand(createListCommand);
-      addCommand.option("-g, --global", "Add item to global quiklist.", false);
-      showCommand.option(
-        "-g, --global",
-        "Show items from global quiklist.",
-        false,
+    // delete command
+    deleteCommand
+      .description("Delete items from your global quiklist.")
+      .action(async () =>
+        asyncErrorHandler(
+          deleteItems(
+            globalMetadata.datasetFilepath,
+            config.dateFormat,
+            globalMetadata.priorityStyle,
+            globalMetadata.name,
+          ),
+        ),
       );
-      markCommand.option(
-        "-g, --global",
-        "Mark/Unmark items in global quiklist.",
-        false,
-      );
-      editCommand.option(
-        "-g, --global",
-        "Edit items in global quiklist.",
-        false,
-      );
-      deleteCommand.option(
-        "-g, --global",
-        "Delete items from global quiklist.",
-        false,
-      );
-    } else {
-      // TODO: need to add this command
-      // app.addCommand(deleteListCommand);
-      console.log("im coming here");
-    }
-
     app.addCommand(addCommand);
     app.addCommand(showCommand);
-    app.addCommand(deleteCommand);
     app.addCommand(markCommand);
     app.addCommand(editCommand);
+    app.addCommand(deleteCommand);
   }
   return app;
 };
-
-export default launchQuiklist;

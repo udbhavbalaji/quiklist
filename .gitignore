@@ -146,3 +146,4 @@ test.ts
 
 # quiklist app data
 .quiklist/
+.quiklistv2/

@@ -24,7 +24,9 @@
   "homepage": "https://github.com/udbhavbalaji/quiklist/#readme",
   "bin": {
     "quiklist": "./dist/bin/quiklist.js",
-    "ql": "./dist/bin/quiklist.js"
+    "ql": "./dist/bin/quiklist.js",
+    "quiklist-global": "./dist/bin/quiklist-global.js",
+    "qlg": "./dist/bin/quiklist-global.js"
   },
   "files": [
     "dist/",

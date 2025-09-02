@@ -1,5 +1,6 @@
 import { loadList, saveList } from "@v2/lib/file-io";
-import logger from "@v2/lib/logger";
+import { getItemCountsMessage } from "@v2/lib/helpers";
+import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import { deleteListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle } from "@v2/types";
 import { err, ok } from "neverthrow";
@@ -8,6 +9,7 @@ const deleteItems = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
   priorityStyle: PriorityStyle,
+  listName: string,
 ) => {
   const itemsRes = loadList(datasetFilepath);
 
@@ -25,6 +27,8 @@ const deleteItems = async (
       return { ...item, id: `${item.description}:${item.createdAt}` };
     }),
   };
+
+  logger.hex(DEBUG_HEX, getItemCountsMessage(itemOptions, listName));
 
   const itemsDeletedRes = await deleteListItems(
     itemOptions,

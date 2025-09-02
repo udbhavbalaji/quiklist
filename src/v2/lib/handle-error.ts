@@ -52,9 +52,9 @@ export const handleIOError = (error: any, location: string) => {
         ? "metadata_not_found"
         : "File/directory doesn't exist.";
   } else if (error.code === "EISDIR") {
-    errorMessage = "Expected file but found direcotory";
+    errorMessage = "Expected file but found directory";
   } else if (error.code === "ENOTDIR") {
-    errorMessage = "Not a direcotory";
+    errorMessage = "Not a directory";
   } else {
     errorMessage = "Something's gone horribly wrong.";
   }

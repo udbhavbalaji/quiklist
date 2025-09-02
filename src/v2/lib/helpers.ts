@@ -11,6 +11,16 @@ const priorityMapping: Record<Priority, number> = {
   LOW: 1,
 };
 
+export const getItemCountsMessage = (
+  itemOptions: {
+    checked: QLListItem[];
+    unchecked: QLListItem[];
+  },
+  listName: string,
+) => {
+  return `\nItems Completed in '${listName}': ${itemOptions.checked.length}/${itemOptions.checked.length + itemOptions.unchecked.length}\n`;
+};
+
 export const formatDateFromISO = (isoDate: string, dateFormat: DateFormat) => {
   try {
     const datePart = isoDate.split("T")[0];

@@ -22,3 +22,4 @@ export const deleteCommand = new Command("delete");
 export const editCommand = new Command("edit").description(
   "Edit item details.",
 );
+export const deleteListCommand = new Command("delete-list");

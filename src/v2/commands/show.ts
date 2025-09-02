@@ -1,5 +1,6 @@
 import { loadList } from "@v2/lib/file-io";
 import {
+  getItemCountsMessage,
   renderItem,
   sortByCreatedDate,
   sortByDeadline,
@@ -17,6 +18,7 @@ const showListItems = async (
   priorityStyle: PriorityStyle,
   sortCriteria: SortCriteria,
   sortOrder: SortOrder,
+  listName: string,
 ) => {
   const itemsRes = loadList(filepath);
 
@@ -75,6 +77,9 @@ const showListItems = async (
   }
 
   logger.hex(DEBUG_HEX, "");
+
+  logger.hex(DEBUG_HEX, getItemCountsMessage(sortedItemOptions, listName));
+
   return ok();
 };
 

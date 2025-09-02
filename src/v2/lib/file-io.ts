@@ -50,7 +50,6 @@ const readData = <Data>(filepath: string, location: string) => {
     const dataJson = JSON.parse(data);
     return ok(dataJson as Data);
   } catch (error) {
-    console.log(error);
     return handleIOError(error, location);
   }
 };
@@ -72,6 +71,15 @@ export const createDir = (dirName: string) => {
     return ok();
   } catch (error) {
     return handleIOError(error, "createDir");
+  }
+};
+
+export const removeDir = (dirName: string) => {
+  try {
+    fs.rmSync(dirName, { recursive: true });
+    return ok();
+  } catch (error) {
+    return handleIOError(error, "removeDir");
   }
 };
 
