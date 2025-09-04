@@ -7,10 +7,16 @@ import { QLCompleteConfig } from "@v2/types/config";
 import { QLList, QLListOptions } from "@v2/types/list";
 import logger from "@v2/lib/logger";
 
-export const addToGitIgnore = () => {
+export const addToGitIgnore = (pathToIgnore: string) => {
   try {
-    const ignoreRule = "\n# quiklist app data\n.quiklist/";
+    const ignoreRule = `\n# quiklist app data\n${pathToIgnore}`;
     const gitignoreFilepath = path.join(process.cwd(), ".gitignore");
+
+    if (!fs.existsSync(gitignoreFilepath)) {
+      logger.info(".gitignore not found...");
+      return ok();
+    }
+
     const currentContent = fs.readFileSync(gitignoreFilepath, "utf-8");
 
     if (currentContent.includes(".quiklist/")) {
@@ -19,10 +25,19 @@ export const addToGitIgnore = () => {
     }
 
     fs.appendFileSync(gitignoreFilepath, ignoreRule, "utf-8");
-    logger.info("Added .quiklist/ to .gitignore.");
+    logger.info(`Added ${pathToIgnore} to .gitignore.`);
     return ok();
   } catch (error) {
     return handleIOError(error, "addToGitIgnore");
+  }
+};
+
+export const renameListFile = (oldPath: string, newPath: string) => {
+  try {
+    fs.renameSync(oldPath, newPath);
+    return ok();
+  } catch (error) {
+    return handleIOError(error, "renameListFile");
   }
 };
 

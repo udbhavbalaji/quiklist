@@ -112,15 +112,17 @@ const createList = async (
       location: `${userWantsListTracked.error.location} -> createList`,
     });
 
-  if (!userWantsListTracked.value) {
-    const gitignoreRes = addToGitIgnore();
+  const pathToIgnore = userWantsListTracked.value
+    ? ".quiklist/metadata.json"
+    : ".quiklist/";
 
-    if (gitignoreRes.isErr())
-      return err({
-        ...gitignoreRes.error,
-        location: `${gitignoreRes.error.location} -> createList`,
-      });
-  }
+  const gitignoreRes = addToGitIgnore(pathToIgnore);
+
+  if (gitignoreRes.isErr())
+    return err({
+      ...gitignoreRes.error,
+      location: `${gitignoreRes.error.location} -> createList`,
+    });
 
   logger.info(`Created list '${listMetadata.name}'`);
 

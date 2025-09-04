@@ -110,12 +110,28 @@ const mutateList = (
     const { id, ...mainItem } = item;
 
     if (removedItems.includes(id) && mainItem.checked) {
-      updatedList.unchecked.push({ ...mainItem, checked: false });
+      updatedList.unchecked.push({
+        ...mainItem,
+        checked: false,
+        updatedAt: new Date().toISOString(),
+      });
     } else if (addedItems.includes(id) && !mainItem.checked) {
-      updatedList.checked.push({ ...mainItem, checked: true });
+      updatedList.checked.push({
+        ...mainItem,
+        checked: true,
+        updatedAt: new Date().toISOString(),
+      });
     } else {
-      if (mainItem.checked) updatedList.checked.push(mainItem);
-      else updatedList.unchecked.push(mainItem);
+      if (mainItem.checked)
+        updatedList.checked.push({
+          ...mainItem,
+          updatedAt: new Date().toISOString(),
+        });
+      else
+        updatedList.unchecked.push({
+          ...mainItem,
+          updatedAt: new Date().toISOString(),
+        });
     }
   });
 

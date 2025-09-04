@@ -1,3 +1,7 @@
+import path from "path";
+import { err, ok } from "neverthrow";
+
+import { renameListFile, saveConfig, saveMetadata } from "@v2/lib/file-io";
 import { getFormattedJSON } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
@@ -7,17 +11,12 @@ import {
 } from "@v2/lib/prompt";
 import {
   date_formats,
-  DateFormat,
   priority_styles,
-  PriorityStyle,
   sort_criteria,
   sort_orders,
-  SortCriteria,
-  SortOrder,
 } from "@v2/types";
-import { ConfigSelectOptions, QLCompleteConfig } from "@v2/types/config";
+import { QLCompleteConfig } from "@v2/types/config";
 import { QLListOptions } from "@v2/types/list";
-import { err } from "neverthrow";
 
 export const showConfig = (
   config: QLCompleteConfig,
@@ -30,6 +29,7 @@ export const showConfig = (
     sortCriteria: metadata.sortCriteria,
     sortOrder: metadata.sortOrder,
     dateFormat: config.dateFormat,
+    useEditorForUpdates: config.useEditorForUpdatingText,
   };
   logger.hex(
     DEBUG_HEX,
@@ -43,7 +43,9 @@ export const showConfig = (
 
 export const modifyConfig = async (
   config: QLCompleteConfig,
+  configFilepath: string,
   metadata: QLListOptions,
+  metadataFilepath: string,
 ) => {
   const publicDisplayedConfig = {
     listName: metadata.name,
@@ -52,6 +54,7 @@ export const modifyConfig = async (
     sortCriteria: metadata.sortCriteria,
     sortOrder: metadata.sortOrder,
     dateFormat: config.dateFormat,
+    useEditorForUpdatingText: config.useEditorForUpdatingText,
   };
 
   const userSelectedOptionToModify = await getUserChangeInConfig(
@@ -68,13 +71,11 @@ export const modifyConfig = async (
   const selectedOption = splitSetting[0];
   const currentValue = splitSetting[1];
 
-  const metadata_options = [
-    "listName",
-    "priorityStyle",
-    "sortCriteria",
-    "sortOrder",
-  ] as const;
-  const config_options = ["createdBy", "dateFormat"] as const;
+  const config_options = [
+    "createdBy",
+    "dateFormat",
+    "useEditorForUpdatingText",
+  ];
 
   const text_input_options = ["listName", "userName"];
 
@@ -84,6 +85,7 @@ export const modifyConfig = async (
     const inputRes = await textPrompt(
       `Enter the new value for '${selectedOption}': `,
       currentValue,
+      config.useEditorForUpdatingText,
     );
 
     if (inputRes.isErr())
@@ -93,34 +95,19 @@ export const modifyConfig = async (
       });
 
     updatedValue = inputRes.value;
+    // } else if (selectedOption === "useEditorForUpdatingText") {
   } else {
-    let choices: ConfigSelectOptions;
-    switch (selectedOption) {
-      case "priorityStyle": {
-        choices = priority_styles;
-        break;
-      }
-      case "sortCriteria": {
-        choices = sort_criteria;
-        break;
-      }
-      case "sortOrder": {
-        choices = sort_orders;
-      }
-      case "dateFormat": {
-        choices = date_formats;
-      }
-      default: {
-        return err({
-          message: "trying to change an option that doesn't exist lol",
-          location: "modifyConfig",
-        });
-      }
-    }
+    const choiceMapping = {
+      priorityStyle: priority_styles,
+      sortCriteria: sort_criteria,
+      sortOrder: sort_orders,
+      dateFormat: date_formats,
+      useEditorForUpdatingText: ["Yes", "No"] as const,
+    };
 
     const selectRes = await selectPrompt(
       `Select new value for '${selectedOption}': `,
-      choices,
+      choiceMapping[selectedOption as keyof typeof choiceMapping],
       currentValue,
     );
 
@@ -131,4 +118,87 @@ export const modifyConfig = async (
       });
     updatedValue = selectRes.value;
   }
+
+  if (config_options.includes(selectedOption)) {
+    const updatedConfig =
+      selectedOption === "useEditorForUpdatingText"
+        ? {
+          ...config,
+          useEditorForUpdatingText: updatedValue === "Yes" ? true : false,
+        }
+        : { ...config, [selectedOption]: updatedValue };
+
+    const saveConfigRes = saveConfig(updatedConfig, configFilepath);
+
+    if (saveConfigRes.isErr())
+      return err({
+        ...saveConfigRes.error,
+        location: `${saveConfigRes.error.location} -> modifyConfig`,
+      });
+  } else {
+    if (selectedOption === "listName") {
+      if (currentValue === "global") {
+        logger.warn("Global list name cannot be changed.");
+        return ok();
+      }
+      const currentDatasetFilepath = metadata.datasetFilepath;
+
+      const updatedMetadata = {
+        ...metadata,
+        name: updatedValue,
+        datasetFilepath: path.join(
+          path.dirname(metadata.datasetFilepath),
+          `${updatedValue}.json`,
+        ),
+      };
+
+      const { [currentValue]: appDir, ...remainingLists } = config.lists;
+
+      const updatedConfig = {
+        ...config,
+        lists: { ...remainingLists, [updatedValue]: appDir },
+      };
+
+      delete updatedConfig.lists[currentValue];
+
+      const saveMetadataRes = saveMetadata(updatedMetadata, metadataFilepath);
+      const saveConfigRes = saveConfig(updatedConfig, configFilepath);
+
+      if (saveMetadataRes.isErr())
+        return err({
+          ...saveMetadataRes.error,
+          location: `${saveMetadataRes.error.location} -> modifyConfig`,
+        });
+      else if (saveConfigRes.isErr())
+        return err({
+          ...saveConfigRes.error,
+          location: `${saveConfigRes.error.location} -> modifyConfig`,
+        });
+
+      const renameRes = renameListFile(
+        currentDatasetFilepath,
+        updatedMetadata.datasetFilepath,
+      );
+
+      if (renameRes.isErr())
+        return err({
+          ...renameRes.error,
+          location: `${renameRes.error.location} -> modifyConfig`,
+        });
+    } else {
+      // just have to update the metadata file
+      const updatedMetadata = { ...metadata, [selectedOption]: updatedValue };
+
+      const saveMetadataRes = saveMetadata(updatedMetadata, metadataFilepath);
+
+      if (saveMetadataRes.isErr())
+        return err({
+          ...saveMetadataRes.error,
+          location: `${saveMetadataRes.error.location} -> modifyConfig`,
+        });
+    }
+  }
+  logger.info("Changed setting");
+
+  return ok();
 };

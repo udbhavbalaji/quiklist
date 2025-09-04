@@ -12,12 +12,14 @@ import {
 } from "@v2/lib/file-io";
 import {
   addCommand,
+  configCommand,
   createListCommand,
   deleteCommand,
   deleteListCommand,
   editCommand,
   initAppCommand,
   markCommand,
+  modifyConfigCommand,
   showCommand,
   showConfigCommand,
 } from "@v2/commands";
@@ -29,7 +31,7 @@ import deleteItems from "@v2/commands/delete";
 import editItemDetails from "@v2/commands/edit";
 import { confirmPrompt } from "@v2/lib/prompt";
 import deleteList from "@v2/commands/delete-list";
-import { showConfig } from "./commands/config";
+import { modifyConfig, showConfig } from "./commands/config";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -181,6 +183,7 @@ export const launchQuiklist = (appVersion: string) => {
           options.global ? globalMetadata.name : metadata.name,
           options.global ? globalMetadata.sortCriteria : metadata.sortCriteria,
           options.global ? globalMetadata.sortOrder : metadata.sortOrder,
+          config.useEditorForUpdatingText,
         ),
       ),
     );
@@ -207,6 +210,21 @@ export const launchQuiklist = (appVersion: string) => {
     // show config command
     showConfigCommand.action((options) =>
       showConfig(config, options.global ? globalMetadata : metadata),
+    );
+
+    // edit config command
+    modifyConfigCommand.action(async (options) =>
+      asyncErrorHandler(
+        modifyConfig(
+          config,
+          configFilepath,
+          options.global ? globalMetadata : metadata,
+          path.join(
+            options.global ? config.lists.global : listInfo.value,
+            "metadata.json",
+          ),
+        ),
+      ),
     );
 
     // registering the commands
@@ -243,13 +261,22 @@ export const launchQuiklist = (appVersion: string) => {
       "-g, --global",
       "Show configuration for your global quiklist.",
     );
+    modifyConfigCommand.option(
+      "-g, --global",
+      "Edit configuration for your global quiklist.",
+    );
+
+    configCommand.addCommand(showConfigCommand);
+    configCommand.addCommand(modifyConfigCommand);
 
     app.addCommand(addCommand);
     app.addCommand(showCommand);
     app.addCommand(deleteCommand);
     app.addCommand(markCommand);
     app.addCommand(editCommand);
-    app.addCommand(showConfigCommand);
+    app.addCommand(configCommand);
+    // app.addCommand(showConfigCommand);
+    // app.addCommand(modifyConfigCommand);
 
     if (isListGlobal) {
       app.addCommand(createListCommand);
@@ -363,6 +390,7 @@ export const launchGlobalQuiklist = (appVersion: string) => {
             globalMetadata.name,
             globalMetadata.sortCriteria,
             globalMetadata.sortOrder,
+            config.useEditorForUpdatingText,
           ),
         ),
       );
@@ -386,12 +414,29 @@ export const launchGlobalQuiklist = (appVersion: string) => {
     // show config command
     showConfigCommand.action(() => showConfig(config, globalMetadata));
 
+    // edit config command
+    modifyConfigCommand.action(async () =>
+      asyncErrorHandler(
+        modifyConfig(
+          config,
+          configFilepath,
+          globalMetadata,
+          path.join(config.lists.global, "metadata.json"),
+        ),
+      ),
+    );
+
+    configCommand.addCommand(showConfigCommand);
+    configCommand.addCommand(modifyConfigCommand);
+
     app.addCommand(addCommand);
     app.addCommand(showCommand);
     app.addCommand(markCommand);
     app.addCommand(editCommand);
     app.addCommand(deleteCommand);
-    app.addCommand(showConfigCommand);
+    app.addCommand(configCommand);
+    // app.addCommand(showConfigCommand);
+    // app.addCommand(modifyConfigCommand);
   }
   return app;
 };

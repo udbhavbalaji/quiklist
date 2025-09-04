@@ -1,6 +1,6 @@
 import z from "zod";
 import { ok } from "neverthrow";
-import { input, select, confirm } from "@inquirer/prompts";
+import { input, select, confirm, editor } from "@inquirer/prompts";
 import chalk from "chalk";
 import actionSelect from "inquirer-honshin-select";
 import { select as multiSelect, Separator } from "inquirer-select-pro";
@@ -65,15 +65,17 @@ export const getItemDescription = async (message: string) => {
   }
 };
 
-export const selectPrompt = async (
+export const selectPrompt = async <T>(
   message: string,
-  choices: ConfigSelectOptions,
+  choices: readonly T[],
   defaultValue: string,
 ) => {
   try {
     const selectedAnswer = await select({
       message,
-      choices: choices.map((item) => item),
+      choices: choices.map((value) => {
+        return { value };
+      }),
       default: defaultValue,
     });
     return ok(selectedAnswer);
@@ -82,13 +84,26 @@ export const selectPrompt = async (
   }
 };
 
-export const textPrompt = async (message: string, defaultValue: string) => {
+export const textPrompt = async (
+  message: string,
+  defaultValue: string,
+  useEditor: boolean,
+) => {
   try {
-    const text = await input({
-      message,
-      default: defaultValue,
-      validate: (value) => (value === "" ? "This cannot be empty" : true),
-    });
+    const text = useEditor
+      ? (
+        await editor({
+          message,
+          default: defaultValue,
+          waitForUseInput: true,
+          validate: (value) => (value === "" ? "This cannot be empty" : true),
+        })
+      ).trim()
+      : await input({
+        message,
+        default: defaultValue,
+        validate: (value) => (value === "" ? "This cannot be empty" : true),
+      });
     return ok(text);
   } catch (error) {
     return handlePromptError(error, "textPrompt");
@@ -236,20 +251,30 @@ export const getUpdatedItemPriority = async (
   }
 };
 
-export const getUpdatedItemText = async (item: QLListItem & { id: string }) => {
+export const getUpdatedItemText = async (
+  item: QLListItem & { id: string },
+  useEditor: boolean,
+) => {
   try {
-    const answer = await input({
-      message: "Make changes to the item",
-      default: item.description,
-      prefill: "editable",
-    });
+    const answer = useEditor
+      ? (
+        await editor({
+          message: "Make changes to the item",
+          default: item.description,
+        })
+      ).trim()
+      : await input({
+        message: "Make changes to the item",
+        default: item.description,
+        prefill: "editable",
+      });
     if (answer === "") {
       logger.error(
         "Cannot remove entire text content from item. You can delete this item using the 'delete' command",
       );
       return ok(item.description);
     }
-    return ok(answer.trim());
+    return ok(answer);
   } catch (error) {
     return handlePromptError(error, "getUpdatedItemText");
   }
@@ -444,6 +469,11 @@ export const configurePrompt = async (defaultConfig: QLUserInputtedConfig) => {
           return { value };
         }),
         default: defaultConfig.dateFormat,
+      }),
+      useEditorForUpdatingText: await confirm({
+        message:
+          "Do you want to open up your preferred editor for making changes? ",
+        default: defaultConfig.useEditorForUpdatingText,
       }),
     };
 

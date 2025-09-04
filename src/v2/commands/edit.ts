@@ -25,6 +25,7 @@ const editItemDetails = async (
   listName: string,
   sortCriteria: SortCriteria,
   sortOrder: SortOrder,
+  useEditor: boolean,
 ) => {
   const itemsRes = loadList(datasetFilepath);
 
@@ -96,7 +97,7 @@ const editItemDetails = async (
 
   switch (action) {
     case "item": {
-      const updatedItemRes = await getUpdatedItemText(selectedItem);
+      const updatedItemRes = await getUpdatedItemText(selectedItem, useEditor);
 
       if (updatedItemRes.isErr())
         return err({

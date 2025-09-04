@@ -183,8 +183,8 @@ const inverseDateTransformer: Record<DateFormat, (date: string) => string> = {
   },
   "YYYY-MM-DD": (date: string) => date,
   "DD/MM/YYYY": (date: string) => {
-    const dateParts = date.split("-");
-    return `${dateParts[2]}/${dateParts[1].padStart(2, "0")}/${dateParts[0].padStart(2, "0")}`;
+    const dateParts = date.split("/");
+    return `${dateParts[2]}-${dateParts[1].padStart(2, "0")}-${dateParts[0].padStart(2, "0")}`;
   },
   "YYYY/MM/DD": (date: string) => date.replace("/", "-"),
 };

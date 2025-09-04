@@ -22,6 +22,7 @@ export const initGlobalConfig = async (configFilepath: string) => {
   const defaultConfig: QLUserInputtedConfig = {
     userName: "John Doe",
     dateFormat: "DD-MM-YYYY",
+    useEditorForUpdatingText: false,
   };
 
   const configRes = await configurePrompt(defaultConfig);
