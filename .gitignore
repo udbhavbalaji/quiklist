@@ -142,3 +142,6 @@ vite.config.ts.timestamp-*
 test.ts 
 *.txt
 .DS_Store
+
+# Quiklist
+.quiklist/metadata.json
