@@ -71,11 +71,7 @@ export const modifyConfig = async (
   const selectedOption = splitSetting[0];
   const currentValue = splitSetting[1];
 
-  const config_options = [
-    "createdBy",
-    "dateFormat",
-    "useEditorForUpdatingText",
-  ];
+  const config_options = ["userName", "dateFormat", "useEditorForUpdatingText"];
 
   const text_input_options = ["listName", "userName"];
 

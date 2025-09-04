@@ -1,11 +1,35 @@
 import fs from "fs";
 import path from "path";
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 
 import { handleIOError } from "@v2/lib/handle-error";
 import { QLCompleteConfig } from "@v2/types/config";
 import { QLList, QLListOptions } from "@v2/types/list";
 import logger from "@v2/lib/logger";
+
+export const detectExistingQuiklist = () => {
+  const expectedAppDir = path.join(process.cwd(), ".quiklist");
+  if (!fs.existsSync(expectedAppDir)) {
+    return err({
+      message: "quiklist_not_found",
+      location: "detectExistingQuiklist",
+    });
+  }
+
+  try {
+    const filesWithinDir = fs.readdirSync(expectedAppDir);
+    if (filesWithinDir.length !== 1)
+      return err({
+        message: "incorrect files exist",
+        location: "detectExistingQuiklist",
+      });
+
+    const existingListName = filesWithinDir[0].split(".")[0];
+    return ok({ name: existingListName, appDir: expectedAppDir });
+  } catch (error) {
+    return handleIOError(error, "detectExistingQuiklist");
+  }
+};
 
 export const addToGitIgnore = (pathToIgnore: string) => {
   try {

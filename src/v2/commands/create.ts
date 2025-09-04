@@ -8,7 +8,11 @@ import {
   QLListBasicOptions,
   QLListOptions,
 } from "@v2/types/list";
-import { confirmPrompt, createListPrompt } from "@v2/lib/prompt";
+import {
+  confirmPrompt,
+  createListPrompt,
+  globalListPrompt,
+} from "@v2/lib/prompt";
 import {
   addToGitIgnore,
   createDir,
@@ -125,6 +129,69 @@ const createList = async (
     });
 
   logger.info(`Created list '${listMetadata.name}'`);
+
+  return ok();
+};
+
+export const syncList = async (
+  existingListInfo: QLListBasicOptions,
+  globalMetadata: QLListOptions,
+  config: QLCompleteConfig,
+  configFilepath: string,
+) => {
+  const defaultListOptions: QLGlobalListOptions = {
+    priorityStyle: globalMetadata.priorityStyle,
+    sortCriteria: globalMetadata.sortCriteria,
+    sortOrder: globalMetadata.sortOrder,
+  };
+
+  const listOptionsRes = await globalListPrompt(defaultListOptions);
+
+  if (listOptionsRes.isErr())
+    return err({
+      ...listOptionsRes.error,
+      location: `${listOptionsRes.error.location} -> syncList`,
+    });
+
+  const syncedListMetadata: QLListOptions = {
+    ...listOptionsRes.value,
+    name: existingListInfo.name,
+    datasetFilepath: path.join(
+      existingListInfo.appDir,
+      `${existingListInfo.name}.json`,
+    ),
+  };
+
+  const saveMetadataRes = saveMetadata(
+    syncedListMetadata,
+    path.join(existingListInfo.appDir, "metadata.json"),
+  );
+
+  if (saveMetadataRes.isErr())
+    return err({
+      ...saveMetadataRes.error,
+      location: `${saveMetadataRes.error.location} -> syncList`,
+    });
+
+  const updatedConfig = {
+    ...config,
+    lists: {
+      ...config.lists,
+      [existingListInfo.name]: existingListInfo.appDir,
+    },
+  };
+
+  const saveConfigRes = saveConfig(updatedConfig, configFilepath);
+
+  if (saveConfigRes.isErr())
+    return err({
+      ...saveConfigRes.error,
+      location: `${saveConfigRes.error.location} -> syncList`,
+    });
+
+  logger.info(
+    `'${syncedListMetadata.name}' has been created from detected quiklist.`,
+  );
 
   return ok();
 };

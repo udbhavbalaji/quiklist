@@ -6,6 +6,7 @@ import path from "path";
 import { initGlobalConfig } from "@v2/lib/config";
 import { asyncErrorHandler, errorHandler } from "@v2/lib/handle-error";
 import {
+  detectExistingQuiklist,
   getCurrentOrGlobalListInfo,
   loadConfig,
   loadMetadata,
@@ -24,7 +25,7 @@ import {
   showConfigCommand,
 } from "@v2/commands";
 import { addItemToList, handleAddItemCommand } from "@v2/commands/add";
-import createList from "@v2/commands/create";
+import createList, { syncList } from "@v2/commands/create";
 import showListItems from "@v2/commands/show";
 import markItems from "@v2/commands/mark";
 import deleteItems from "@v2/commands/delete";
@@ -32,6 +33,8 @@ import editItemDetails from "@v2/commands/edit";
 import { confirmPrompt } from "@v2/lib/prompt";
 import deleteList from "@v2/commands/delete-list";
 import { modifyConfig, showConfig } from "./commands/config";
+import logger, { INFO_HEX } from "./lib/logger";
+import { getFormattedJSON } from "./lib/helpers";
 
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
@@ -67,9 +70,21 @@ export const launchQuiklist = (appVersion: string) => {
     ////  extra config for each command
 
     // createList command
-    createListCommand.action(async (options) =>
-      asyncErrorHandler(createList(options.y, config, configFilepath)),
-    );
+    createListCommand.action(async (options) => {
+      const checkExistingList = detectExistingQuiklist();
+
+      if (checkExistingList.isErr()) {
+        return asyncErrorHandler(createList(options.y, config, configFilepath));
+      }
+      return asyncErrorHandler(
+        syncList(
+          checkExistingList.value,
+          globalMetadata,
+          config,
+          configFilepath,
+        ),
+      );
+    });
 
     // add command
     addCommand.description(`Add item to '${metadata.name}'`);
