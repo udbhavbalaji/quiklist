@@ -1,12 +1,15 @@
+// External imports
 import fs from "fs";
 import path from "path";
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { handleIOError } from "@v2/lib/handle-error";
 import { QLCompleteConfig } from "@v2/types/config";
-import { QLList, QLListOptions } from "@v2/types/list";
+import { QLList, QLListMetadata } from "@v2/types/list";
 import logger from "@v2/lib/logger";
 
+// function that checks if there already is a quiklist data file (assumed to be pulled from git)
 export const detectExistingQuiklist = () => {
   const expectedAppDir = path.join(process.cwd(), ".quiklist");
   if (!fs.existsSync(expectedAppDir)) {
@@ -31,6 +34,7 @@ export const detectExistingQuiklist = () => {
   }
 };
 
+// function that adds the specified path to .gitignore
 export const addToGitIgnore = (pathToIgnore: string) => {
   try {
     const ignoreRule = `\n# quiklist app data\n${pathToIgnore}`;
@@ -56,6 +60,7 @@ export const addToGitIgnore = (pathToIgnore: string) => {
   }
 };
 
+// function that renames a file (here, specifically, it renames the list data file name)
 export const renameListFile = (oldPath: string, newPath: string) => {
   try {
     fs.renameSync(oldPath, newPath);
@@ -65,15 +70,19 @@ export const renameListFile = (oldPath: string, newPath: string) => {
   }
 };
 
+// function that saves the config for quiklist
 export const saveConfig = (config: QLCompleteConfig, filepath: string) =>
   writeData(config, filepath, "saveConfig");
 
-export const saveMetadata = (metadata: QLListOptions, filepath: string) =>
+// function that saves the metadata for a specified quiklist
+export const saveMetadata = (metadata: QLListMetadata, filepath: string) =>
   writeData(metadata, filepath, "saveMetadata");
 
+// function that saves the list data for a specified quiklist
 export const saveList = (list: QLList, filepath: string) =>
   writeData(list, filepath, "saveList");
 
+// internal function that writes JSON objects to a file
 const writeData = <Data>(data: Data, filepath: string, location: string) => {
   try {
     fs.appendFileSync(filepath, JSON.stringify(data, null, 2), { flag: "w" });
@@ -83,6 +92,7 @@ const writeData = <Data>(data: Data, filepath: string, location: string) => {
   }
 };
 
+// internal function that reads data JSON data from a file
 const readData = <Data>(filepath: string, location: string) => {
   try {
     const data = fs.readFileSync(filepath, { encoding: "utf-8" });
@@ -93,15 +103,19 @@ const readData = <Data>(filepath: string, location: string) => {
   }
 };
 
+// function that loads the list data for a specified quiklist
 export const loadList = (filepath: string) =>
   readData<QLList>(filepath, "loadList");
 
+// function that loads the config for quiklist
 export const loadConfig = (filepath: string) =>
   readData<QLCompleteConfig>(filepath, "loadConfig");
 
+// function that loads the metadata for a specified quiklist
 export const loadMetadata = (filepath: string) =>
-  readData<QLListOptions>(filepath, "loadMetadata");
+  readData<QLListMetadata>(filepath, "loadMetadata");
 
+// function that creates a dir at the specified path
 export const createDir = (dirName: string) => {
   try {
     if (!fs.existsSync(dirName)) {
@@ -113,6 +127,7 @@ export const createDir = (dirName: string) => {
   }
 };
 
+// function that removes a dir, (can also be used for files maybe?)
 export const removeDir = (dirName: string) => {
   try {
     fs.rmSync(dirName, { recursive: true });
@@ -122,6 +137,7 @@ export const removeDir = (dirName: string) => {
   }
 };
 
+// function that returns inside which quiklist app you're currently in, falling back to global ('guaranteed to exist')
 export const getCurrentOrGlobalListInfo = (
   existingLists: QLCompleteConfig["lists"],
 ) => {

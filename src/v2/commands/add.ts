@@ -1,5 +1,7 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import logger from "@v2/lib/logger";
 import { loadList, saveList } from "@v2/lib/file-io";
 import { Priority, QLListItem } from "@v2/types/list";
@@ -9,6 +11,7 @@ import { DateFormat } from "@v2/types";
 import { dateValidator } from "@v2/lib/validator";
 import { formatDateToISO } from "@v2/lib/helpers";
 
+// function that handles the process of adding an item by extracting and imposing the defaults
 export const handleAddItemCommand = async (
   item_desc: string[],
   options: AddItemToListOptions,
@@ -53,6 +56,7 @@ export const handleAddItemCommand = async (
   return ok({ itemDesc, priority, deadline });
 };
 
+// function that adds an item to the quiklist
 export const addItemToList = async (
   dataFilepath: string,
   description: string,

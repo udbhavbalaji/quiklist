@@ -1,6 +1,6 @@
 declare module "inquirer-honshin-select" {
   import { Separator } from "@inquirer/core";
-  type Action<ActionValue> = {
+  export type Action<ActionValue> = {
     value: ActionValue;
     name: string;
     key: string;

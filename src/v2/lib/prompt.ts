@@ -1,11 +1,13 @@
+// External imports
 import z from "zod";
-import { ok } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { input, select, confirm, editor } from "@inquirer/prompts";
 import chalk from "chalk";
-import actionSelect from "inquirer-honshin-select";
+import actionSelect, { Action } from "inquirer-honshin-select";
 import { select as multiSelect, Separator } from "inquirer-select-pro";
 
-import { ConfigSelectOptions, QLUserInputtedConfig } from "@v2/types/config";
+// Internal imports
+import { QLUserInputtedConfig } from "@v2/types/config";
 import {
   date_formats,
   DateFormat,
@@ -25,7 +27,154 @@ import { handlePromptError } from "@v2/lib/handle-error";
 import { pathValidator } from "@v2/lib/validator";
 import { formatDateFromISO, getFormattedItem } from "@v2/lib/helpers";
 import logger, { INFO_HEX, PANIC_HEX } from "@v2/lib/logger";
+import { extendedDuration } from "zod/v4/core/regexes.cjs";
+import { configCommand } from "@v2/commands";
+import { TextPromptArgs, TextPromptConfig } from "@v2/types/prompt";
 
+const getTextPrompt = async (config: TextPromptArgs) => {
+  // const getTextPrompt = async (
+  //   message: string,
+  //   useEditor: boolean,
+  //   required = false,
+  //   defaultValue?: string,
+  //   validate?: (value: string) => string | boolean | Promise<string | boolean>,
+  // ) => {
+  try {
+    const validateFunction = config.validate ?? ((value: string) => true);
+    const textConfig: TextPromptConfig = {
+      message: config.message,
+    };
+
+    if (config.default) textConfig.default = config.default;
+
+    if (config.validate) textConfig.validate = config.validate;
+
+    const answer = config.useEditor
+      ? await editor({ ...textConfig, waitForUseInput: true })
+      : await input({ ...textConfig, required: config.required });
+    // const answer = useEditor
+    // const answer = useEditor
+    //   ? await editor({
+    //     message,
+    //     default: defaultValue,
+    //     validate: validateFunction,
+    //     waitForUseInput: true,
+    //   })
+    //   : await input({
+    //     message,
+    //     default: defaultValue,
+    //     validate: validateFunction,
+    //     required,
+    //   });
+    return ok(answer);
+  } catch (error) {
+    return handlePromptError(error, "getTextPrompt");
+  }
+};
+
+const getSingleSelectPrompt = async <T>(
+  message: string,
+  choices: readonly T[],
+  defaultValue?: T,
+) => {
+  try {
+    const answer = await select({
+      message,
+      default: defaultValue,
+      choices: choices.map((value) => {
+        return { value };
+      }),
+      pageSize: 20,
+      loop: false,
+    });
+    return ok(answer);
+  } catch (error) {
+    return handlePromptError(error, "getSingleSelectPrompt");
+  }
+};
+
+const getMultiSelectPrompt = async <T>(
+  message: string,
+  options: readonly T[],
+  defaultValue: T[],
+) => {
+  try {
+    const answers = await multiSelect({
+      message,
+      options: options.map((value) => {
+        return { value };
+      }),
+      defaultValue,
+    });
+    return ok(answers);
+  } catch (error) {
+    return handlePromptError(error, "getMultiSelectPrompt");
+  }
+};
+
+const getActionSelectPrompt = async <T>(
+  message: string,
+  choices: readonly T[],
+  actions: Action<string>[],
+  defaultValue: T,
+) => {
+  try {
+    const { action, answer } = await actionSelect({
+      message,
+      default: defaultValue,
+      choices: choices.map((value) => {
+        return { value };
+      }),
+      actions,
+    });
+    return ok({ answer, action });
+  } catch (error) {
+    return handlePromptError(error, "getActionSelectPrompt");
+  }
+};
+
+const getConfirmSelectPrompt = async (
+  message: string,
+  defaultValue: boolean,
+) => {
+  try {
+    const confirmed = await confirm({ message, default: defaultValue });
+    return ok(confirmed);
+  } catch (error) {
+    return handlePromptError(error, "getConfirmSelectPrompt");
+  }
+};
+
+///////// Re writen Prompt Fns ////////////////////
+
+export const userConfigChangePrompt = async (
+  listConfig: QLPublicListConfig,
+) => {
+  const configOptions = Object.entries(listConfig);
+
+  const choices = configOptions.map((item) => `${item[0]}: ${item[1]}`);
+
+  const promptRes = await getSingleSelectPrompt(
+    "Select the setting you want to change: ",
+    choices,
+  );
+
+  if (promptRes.isErr())
+    return err({
+      ...promptRes.error,
+      location: `${promptRes.error.location} -> userConfigChangePrompt`,
+    });
+
+  return promptRes;
+};
+
+export const itemDescriptionPrompt = async (message: string) => {
+  const promptRes = await getTextPrompt(message, false, true);
+};
+
+///////////// Original Propmpt Fns ////////////////////////
+
+// function that prompts user to select the config setting they want to change
 export const getUserChangeInConfig = async (listConfig: QLPublicListConfig) => {
   const configOptions = Object.entries(listConfig);
 
@@ -34,7 +183,6 @@ export const getUserChangeInConfig = async (listConfig: QLPublicListConfig) => {
       value: `${item[0]}: ${item[1]}`,
     };
   });
-
   try {
     const selectedOptionToChange = await select({
       message: "Select the setting you want to change: ",
@@ -47,6 +195,7 @@ export const getUserChangeInConfig = async (listConfig: QLPublicListConfig) => {
   }
 };
 
+// function that prompts user to enter item's description
 export const getItemDescription = async (message: string) => {
   try {
     const desc = await input({
@@ -65,6 +214,7 @@ export const getItemDescription = async (message: string) => {
   }
 };
 
+// function that prompts the user to select a value from an item
 export const selectPrompt = async <T>(
   message: string,
   choices: readonly T[],

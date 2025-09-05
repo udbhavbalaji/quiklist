@@ -1,5 +1,7 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { loadList } from "@v2/lib/file-io";
 import {
   getItemCountsMessage,
@@ -11,6 +13,7 @@ import {
 import logger, { INFO_HEX, PANIC_HEX, DEBUG_HEX } from "@v2/lib/logger";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 
+// function that displays the items of the specified quiklist in the console
 const showListItems = async (
   filepath: string,
   unchecked: boolean,

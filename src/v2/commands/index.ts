@@ -1,5 +1,7 @@
+// External imports
 import { Command } from "commander";
 
+// Command definitions within quiklist
 export const initAppCommand = new Command("init").description(
   "Initialize quiklist.",
 );

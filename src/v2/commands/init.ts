@@ -1,16 +1,20 @@
+// External imports
 import { err, ok } from "neverthrow";
 import path from "path";
 import os from "os";
 
+// Internal imports
 import { createDir, saveConfig, saveList, saveMetadata } from "@v2/lib/file-io";
 import { QLCompleteConfig, QLUserInputtedConfig } from "@v2/types/config";
 import { configurePrompt, globalListPrompt } from "@v2/lib/prompt";
-import { QLGlobalListOptions, QLList, QLListOptions } from "@v2/types/list";
+import { QLGlobalListOptions, QLList, QLListMetadata } from "@v2/types/list";
 import logger from "@v2/lib/logger";
 
+// module-level vars
 const globalAppDir = path.join(os.homedir(), ".quiklist");
 
-export const initGlobalConfig = async (configFilepath: string) => {
+// function that handles the process of initializing quiklist for use when first installed, creates config and global list
+const initGlobalConfig = async (configFilepath: string) => {
   const ensureDirExists = createDir(path.dirname(configFilepath));
 
   if (ensureDirExists.isErr())
@@ -54,7 +58,7 @@ export const initGlobalConfig = async (configFilepath: string) => {
       location: `${globalListOptionRes.error.location} -> initGlobalConfig`,
     });
 
-  const globalListMetadata: QLListOptions = {
+  const globalListMetadata: QLListMetadata = {
     ...globalListOptionRes.value,
     datasetFilepath: path.join(globalAppDir, "global.json"),
     name: "global",
@@ -106,3 +110,5 @@ export const initGlobalConfig = async (configFilepath: string) => {
 
   return ok();
 };
+
+export default initGlobalConfig;

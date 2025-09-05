@@ -1,8 +1,11 @@
+// External imports
 import { err, Result } from "neverthrow";
 
+// Internal imports
 import { LogLevel, QLError } from "@v2/types";
 import logger from "@v2/lib/logger";
 
+// wrapper function that handles async errors (returned through the Error class from neverthrow); if no error, return the value
 export const asyncErrorHandler = async <ResultType>(
   fnResult: Promise<Result<ResultType, QLError>>,
 ) => {
@@ -15,6 +18,7 @@ export const asyncErrorHandler = async <ResultType>(
   return res.value;
 };
 
+// wrapper function that handles sync errors (returned through the Error class from neverthrow); if no error, return the value
 export const errorHandler = <ResultType>(
   fnResult: Result<ResultType, QLError>,
 ) => {
@@ -26,6 +30,7 @@ export const errorHandler = <ResultType>(
   return fnResult.value;
 };
 
+// function that handles errors that can arise from prompts, returns the error using the Error class from neverthrow
 export const handlePromptError = async (error: any, location: string) => {
   if (
     error instanceof Error &&
@@ -43,6 +48,7 @@ export const handlePromptError = async (error: any, location: string) => {
   }
 };
 
+// function that handles errors that can arise from file input/output operations, returns the error using the Error class from neverthrow
 export const handleIOError = (error: any, location: string) => {
   let errorMessage: string;
   if (error.code === "EACCES") {

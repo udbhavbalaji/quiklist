@@ -1,6 +1,8 @@
+// External imports
 import path from "path";
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { renameListFile, saveConfig, saveMetadata } from "@v2/lib/file-io";
 import { getFormattedJSON } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
@@ -16,11 +18,12 @@ import {
   sort_orders,
 } from "@v2/types";
 import { QLCompleteConfig } from "@v2/types/config";
-import { QLListOptions } from "@v2/types/list";
+import { QLListMetadata } from "@v2/types/list";
 
+// function that displays the selected config for the current quiklist in the terminal
 export const showConfig = (
   config: QLCompleteConfig,
-  metadata: QLListOptions,
+  metadata: QLListMetadata,
 ) => {
   const publicDisplayedConfig = {
     listName: metadata.name,
@@ -41,10 +44,11 @@ export const showConfig = (
   );
 };
 
+// function that handles the process of modifying a config setting for the specified quiklist
 export const modifyConfig = async (
   config: QLCompleteConfig,
   configFilepath: string,
-  metadata: QLListOptions,
+  metadata: QLListMetadata,
   metadataFilepath: string,
 ) => {
   const publicDisplayedConfig = {
@@ -91,7 +95,6 @@ export const modifyConfig = async (
       });
 
     updatedValue = inputRes.value;
-    // } else if (selectedOption === "useEditorForUpdatingText") {
   } else {
     const choiceMapping = {
       priorityStyle: priority_styles,
@@ -116,6 +119,7 @@ export const modifyConfig = async (
   }
 
   if (config_options.includes(selectedOption)) {
+    // only update config if the changed setting is a config setting
     const updatedConfig =
       selectedOption === "useEditorForUpdatingText"
         ? {
@@ -132,7 +136,9 @@ export const modifyConfig = async (
         location: `${saveConfigRes.error.location} -> modifyConfig`,
       });
   } else {
+    // update the metadata and maybe, also the config
     if (selectedOption === "listName") {
+      // since listName is the only setting referenced in both files, we'll have to update both config and metadata
       if (currentValue === "global") {
         logger.warn("Global list name cannot be changed.");
         return ok();
@@ -182,7 +188,7 @@ export const modifyConfig = async (
           location: `${renameRes.error.location} -> modifyConfig`,
         });
     } else {
-      // just have to update the metadata file
+      // only modify the metadata as teh changed setting was a metadata setting
       const updatedMetadata = { ...metadata, [selectedOption]: updatedValue };
 
       const saveMetadataRes = saveMetadata(updatedMetadata, metadataFilepath);

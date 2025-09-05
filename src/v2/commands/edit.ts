@@ -1,5 +1,7 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { loadList, saveList } from "@v2/lib/file-io";
 import {
   formatDateToISO,
@@ -18,6 +20,7 @@ import {
 import { dateValidator } from "@v2/lib/validator";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 
+// function that edits an item's details in the specified quiklist
 const editItemDetails = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
@@ -165,7 +168,6 @@ const editItemDetails = async (
 
   const updatedList = updatedItem.checked
     ? {
-      // ...itemOptions,
       unchecked: itemOptions.unchecked.map((item) => {
         const { id, ...mainItem } = item;
         return mainItem;
@@ -180,7 +182,6 @@ const editItemDetails = async (
       }),
     }
     : {
-      // ...itemOptions,
       checked: itemOptions.checked.map((item) => {
         const { id, ...mainItem } = item;
         return mainItem;

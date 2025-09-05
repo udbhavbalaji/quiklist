@@ -1,9 +1,11 @@
+// External imports
 import { Command } from "commander";
 import fs from "fs";
 import os from "os";
 import path from "path";
 
-import { initGlobalConfig } from "@v2/lib/config";
+// Internal imports
+import initGlobalConfig from "@v2/commands/init";
 import { asyncErrorHandler, errorHandler } from "@v2/lib/handle-error";
 import {
   detectExistingQuiklist,
@@ -33,12 +35,12 @@ import editItemDetails from "@v2/commands/edit";
 import { confirmPrompt } from "@v2/lib/prompt";
 import deleteList from "@v2/commands/delete-list";
 import { modifyConfig, showConfig } from "./commands/config";
-import logger, { INFO_HEX } from "./lib/logger";
-import { getFormattedJSON } from "./lib/helpers";
 
+// module-level vars
 const configDir = path.join(os.homedir(), ".config", "quiklist");
 const configFilepath = path.join(configDir, "config.json");
 
+// launch function for quiklist, returning the built app
 export const launchQuiklist = (appVersion: string) => {
   const app = new Command("quiklist")
     .description("The fastest checklist app for the terminal.")
@@ -53,10 +55,9 @@ export const launchQuiklist = (appVersion: string) => {
 
     app.addCommand(initAppCommand);
   } else {
-    // load the config
     const config = errorHandler(loadConfig(configFilepath));
 
-    // check if current dir has a qlist initialized, if no then only show the init command, if yes then only show the delete-list command
+    // gets the info about the quiklist you're currently in, falls back to global list if no other list exists
     const listInfo = getCurrentOrGlobalListInfo(config.lists);
 
     const metadata = errorHandler(
@@ -74,7 +75,9 @@ export const launchQuiklist = (appVersion: string) => {
       const checkExistingList = detectExistingQuiklist();
 
       if (checkExistingList.isErr()) {
-        return asyncErrorHandler(createList(options.y, config, configFilepath));
+        return asyncErrorHandler(
+          createList(options.y, config, configFilepath, globalMetadata),
+        );
       }
       return asyncErrorHandler(
         syncList(
@@ -87,23 +90,18 @@ export const launchQuiklist = (appVersion: string) => {
     });
 
     // add command
-    addCommand.description(`Add item to '${metadata.name}'`);
-
-    if (metadata.priorityStyle !== "none") {
-      addCommand
-        .option(
-          "-m, --medium",
-          "Specify that the item has a 'MEDIUM' priority.",
-          false,
-        )
-        .option(
-          "--h, --high",
-          "Specify that the item has a 'HIGH' priority.",
-          false,
-        );
-    }
-
     addCommand
+      .description(`Add item to '${metadata.name}'`)
+      .option(
+        "-m, --medium",
+        "Specify that the item has a 'MEDIUM' priority.",
+        false,
+      )
+      .option(
+        "--h, --high",
+        "Specify that the item has a 'HIGH' priority.",
+        false,
+      )
       .option(
         "-d, --deadline [deadline]",
         `Specify the task's deadline in your selected date format. (Chosen format: ${config.dateFormat})`,
@@ -126,8 +124,8 @@ export const launchQuiklist = (appVersion: string) => {
       });
 
     // show command
-    showCommand.action(async (options) => {
-      return asyncErrorHandler(
+    showCommand.action(async (options) =>
+      asyncErrorHandler(
         showListItems(
           options.global
             ? globalMetadata.datasetFilepath
@@ -141,8 +139,8 @@ export const launchQuiklist = (appVersion: string) => {
           options.global ? globalMetadata.sortOrder : metadata.sortOrder,
           options.global ? globalMetadata.name : metadata.name,
         ),
-      );
-    });
+      ),
+    );
 
     // mark command
     markCommand.action(async (options) =>
@@ -242,8 +240,6 @@ export const launchQuiklist = (appVersion: string) => {
       ),
     );
 
-    // registering the commands
-
     const isListGlobal = listInfo.key === "global";
 
     // set up global flags for each of the commands
@@ -281,6 +277,7 @@ export const launchQuiklist = (appVersion: string) => {
       "Edit configuration for your global quiklist.",
     );
 
+    // registering the commands
     configCommand.addCommand(showConfigCommand);
     configCommand.addCommand(modifyConfigCommand);
 
@@ -290,8 +287,6 @@ export const launchQuiklist = (appVersion: string) => {
     app.addCommand(markCommand);
     app.addCommand(editCommand);
     app.addCommand(configCommand);
-    // app.addCommand(showConfigCommand);
-    // app.addCommand(modifyConfigCommand);
 
     if (isListGlobal) {
       app.addCommand(createListCommand);
@@ -302,6 +297,7 @@ export const launchQuiklist = (appVersion: string) => {
   return app;
 };
 
+// launch function for quiklist-global, returning the built app for the user's global quiklist
 export const launchGlobalQuiklist = (appVersion: string) => {
   const app = new Command("quiklist-global")
     .alias("qlg")
@@ -327,24 +323,19 @@ export const launchGlobalQuiklist = (appVersion: string) => {
     addCommand
       .description("Add item to your global quiklist.")
       .option(
+        "-m, --medium",
+        "Specify that the item has a 'MEDIUM' priority.",
+        false,
+      )
+      .option(
+        "--h, --high",
+        "Specify that the item has a 'HIGH' priority.",
+        false,
+      )
+      .option(
         "-d, --deadline [deadline]",
         `Specify the task's deadline in your selected date format. (Chosen format: ${config.dateFormat})`,
-      );
-    if (globalMetadata.priorityStyle !== "none") {
-      addCommand
-        .option(
-          "-m, --medium",
-          "Specify that the item has a 'MEDIUM' priority.",
-          false,
-        )
-        .option(
-          "--h, --high",
-          "Specify that the item has a 'HIGH' priority.",
-          false,
-        );
-    }
-
-    addCommand
+      )
       .argument("[item_desc...]", "Text description for the list item.")
       .action(async (item_desc: string[], options) => {
         const { itemDesc, priority, deadline } = await asyncErrorHandler(
@@ -441,6 +432,7 @@ export const launchGlobalQuiklist = (appVersion: string) => {
       ),
     );
 
+    // registering the commmands
     configCommand.addCommand(showConfigCommand);
     configCommand.addCommand(modifyConfigCommand);
 
@@ -450,8 +442,6 @@ export const launchGlobalQuiklist = (appVersion: string) => {
     app.addCommand(editCommand);
     app.addCommand(deleteCommand);
     app.addCommand(configCommand);
-    // app.addCommand(showConfigCommand);
-    // app.addCommand(modifyConfigCommand);
   }
   return app;
 };

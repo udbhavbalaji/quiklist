@@ -1,5 +1,7 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { loadList, saveList } from "@v2/lib/file-io";
 import {
   getItemCountsMessage,
@@ -10,8 +12,9 @@ import {
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import { markListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
-import { QLListItem } from "@v2/types/list";
+import { QLListItem, QLListOption } from "@v2/types/list";
 
+// function that marks/unmarks item(s) as completed within the specified quiklist
 const markItems = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
@@ -91,10 +94,11 @@ const markItems = async (
   return ok();
 };
 
+// function that makes the updates to the existing list based on the user's response, returning the updated list
 const mutateList = (
   itemOptions: {
-    checked: (QLListItem & { id: string })[];
-    unchecked: (QLListItem & { id: string })[];
+    checked: QLListOption[];
+    unchecked: QLListOption[];
   },
   removedItems: string[],
   addedItems: string[],

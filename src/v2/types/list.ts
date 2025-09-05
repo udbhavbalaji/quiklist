@@ -17,7 +17,7 @@ export type QLList = {
   unchecked: QLListItem[];
 };
 
-export type QLListOptions = QLGlobalListOptions & {
+export type QLListMetadata = QLGlobalListOptions & {
   name: string;
   datasetFilepath: string;
 };
@@ -30,6 +30,8 @@ export type QLListItem = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type QLListOption = QLListItem & { id: string };
 
 export const priorities = ["LOW", "MEDIUM", "HIGH"] as const;
 export type Priority = (typeof priorities)[number];

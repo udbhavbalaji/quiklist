@@ -1,12 +1,14 @@
+// External imports
 import path from "path";
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { QLCompleteConfig } from "@v2/types/config";
 import {
   QLGlobalListOptions,
   QLList,
   QLListBasicOptions,
-  QLListOptions,
+  QLListMetadata,
 } from "@v2/types/list";
 import {
   confirmPrompt,
@@ -22,19 +24,21 @@ import {
 } from "@v2/lib/file-io";
 import logger from "@v2/lib/logger";
 
+// function that creates a new quiklist in the current working directory, going through prompts as well
 const createList = async (
   defaultFlag: boolean,
   config: QLCompleteConfig,
   configFilepath: string,
+  globalMetadata: QLListMetadata,
 ) => {
   const currentDirpathStems = process.cwd().split(path.sep);
 
   const defaultListOptions: QLGlobalListOptions & QLListBasicOptions = {
     name: currentDirpathStems[currentDirpathStems.length - 1],
     appDir: path.join(process.cwd(), ".quiklist"),
-    priorityStyle: "none",
-    sortCriteria: "none",
-    sortOrder: "descending",
+    priorityStyle: globalMetadata.priorityStyle,
+    sortCriteria: globalMetadata.sortCriteria,
+    sortOrder: globalMetadata.sortOrder,
   };
 
   let chosenListOptions: QLGlobalListOptions & QLListBasicOptions;
@@ -61,7 +65,7 @@ const createList = async (
 
   const metadataFilepath = path.join(chosenListOptions.appDir, "metadata.json");
 
-  const listMetadata: QLListOptions = {
+  const listMetadata: QLListMetadata = {
     name: chosenListOptions.name,
     datasetFilepath: path.join(
       chosenListOptions.appDir,
@@ -135,7 +139,7 @@ const createList = async (
 
 export const syncList = async (
   existingListInfo: QLListBasicOptions,
-  globalMetadata: QLListOptions,
+  globalMetadata: QLListMetadata,
   config: QLCompleteConfig,
   configFilepath: string,
 ) => {
@@ -153,7 +157,7 @@ export const syncList = async (
       location: `${listOptionsRes.error.location} -> syncList`,
     });
 
-  const syncedListMetadata: QLListOptions = {
+  const syncedListMetadata: QLListMetadata = {
     ...listOptionsRes.value,
     name: existingListInfo.name,
     datasetFilepath: path.join(

@@ -1,10 +1,13 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { loadMetadata, saveConfig } from "@v2/lib/file-io";
 import { QLCompleteConfig } from "@v2/types/config";
 import { removeDir } from "@v2/lib/file-io";
 import logger from "@v2/lib/logger";
 
+// function that deletes the specified quiklist
 const deleteList = async (
   metadataFilepath: string,
   config: QLCompleteConfig,

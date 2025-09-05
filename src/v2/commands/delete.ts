@@ -1,5 +1,7 @@
+// External imports
 import { err, ok } from "neverthrow";
 
+// Internal imports
 import { loadList, saveList } from "@v2/lib/file-io";
 import {
   getItemCountsMessage,
@@ -11,6 +13,7 @@ import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import { deleteListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 
+// function that deletes items from the specified quiklist
 const deleteItems = async (
   datasetFilepath: string,
   dateFormat: DateFormat,
@@ -65,7 +68,6 @@ const deleteItems = async (
       location: `${itemsDeletedRes.error.location} -> deleteItems`,
     });
 
-  // need to update the datalist
   const updatedList = {
     checked: itemOptions.checked
       .filter((item) => !itemsDeletedRes.value.includes(item.id))
