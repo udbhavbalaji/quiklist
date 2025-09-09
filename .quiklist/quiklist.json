@@ -30,6 +30,13 @@
     },
     {
       "checked": true,
+      "description": "make sure that the updated time of only the updated fields are happening, looks like all items are getting new updated time all together whenever any change is made",
+      "priority": "HIGH",
+      "createdAt": "2025-09-09T19:34:37.679Z",
+      "updatedAt": "2025-09-09T19:43:15.640Z"
+    },
+    {
+      "checked": true,
       "description": "make sure that the global list's name cannot be changed",
       "priority": "MEDIUM",
       "createdAt": "2025-09-03T16:37:43.468Z",
@@ -51,10 +58,10 @@
     },
     {
       "checked": true,
-      "description": "make sure that the updated time of only the updated fields are happening, looks like all items are getting new updated time all together whenever any change is made",
-      "priority": "HIGH",
-      "createdAt": "2025-09-09T19:34:37.679Z",
-      "updatedAt": "2025-09-09T19:43:15.640Z"
+      "description": "update readme to v2 commands and functionality",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-09T23:36:06.325Z",
+      "updatedAt": "2025-09-09T23:36:20.422Z"
     }
   ],
   "unchecked": [

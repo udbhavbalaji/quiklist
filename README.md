@@ -39,20 +39,20 @@ npm link
 
 1. **Initialize quiklist** (first time only):
    ```bash
-   quiklist --init
+   quiklist init
    # or
-   ql --init
+   ql init
    ```
 
 2. **Create a new list** in your project directory:
    ```bash
-   quiklist init
+   quiklist create
    ```
 
 3. **Add items to your list**:
    ```bash
    quiklist add "Buy groceries"
-   quiklist add "Finish project" --high
+   quiklist add "Finish project" --h
    quiklist add "Call mom" -d "13-09-2025"
    ```
 
@@ -70,43 +70,56 @@ npm link
 
 ### Global Commands
 
-- `quiklist --init` - Initialize quiklist configuration
-- `quiklist --help` - Show help information
-- `quiklist --version` - Show version information
+<!-- - `quiklist --init` - Initialize quiklist configuration -->
+- `quiklist|ql --help` - Show help information
+- `quiklist|ql --version` - Show version information
 
 ### List Management
 
-- `quiklist init [options]` - Initialize a new list in current directory
+- `quiklist|ql create [options]` - Initialize a new list in current directory
   - `-d, --default` - Use default settings instead of interactive prompts
+
+- `quiklist|ql delete-list` - Deletes the list at the path in which the command was called (with confirmation)
 
 ### Item Management (within a list directory)
 
-- `quiklist add [item_text...]` - Add new item to the list. By default, new items are assigned 'LOW' priority
-  - `--md` - Set priority to MEDIUM
-  - `--high` - Set priority to HIGH
+- `quiklist|ql add [item_text...]` - Add new item to your local list (global by default if you're at a path where there is no quiklist created). By default, new items are assigned 'LOW' priority
+  - `-m, --medium` - Set priority to MEDIUM
+  - `--h, --high` - Set priority to HIGH
   - `-d, --deadline [deadline]` - Set deadline (format depends on config)
+  - `-g, --global` - Add item to your global list
 
-- `quiklist mark` - Mark items as completed (interactive selection)
+- `quiklist|ql mark` - Mark items as completed (interactive selection)
 
-- `quiklist show [options]` - Display list items
+- `quiklist|ql show [options]` - Display list items
   - `-u, --unchecked` - Show only unchecked items
 
-- `quiklist delete` - Delete items from the list (interactive selection)
+- `quiklist|ql delete` - Delete items from the list (interactive selection)
 
-- `quiklist edit` - Edit existing items (interactive selection)
-
-- `quiklist delete-list` - Delete the entire list (with confirmation)
+- `quiklist|ql edit` - Edit existing items (interactive selection)
 
 ## Configuration
 
-quiklist stores configuration in `~/.config/quiklist/config.json` including:
+quiklist stores configuration in `~/.config/quiklist/config.json` in the following format:
 
-- **Date Format**: Choose your preferred date format
-- **Priority Style**: Visual representation of priorities
-  - `*/**/***` - Asterisks (*, **, ***)
-  - `!/!!/!!!` - Exclamation marks (!, !!, !!!)
-  - `1/2/3` - Numbers (1, 2, 3)
-  - `none` - No priority indicators
+```jsonc
+{
+  "userName": "Udbhav Balaji",
+  "dateFormat": "DD-MM-YYYY" | "DD/MM/YYYY" | "YYYY-MM-DD" | "YYYY/MM/DD",
+  "useEditorForUpdatingText": true | false,
+  "lists": {
+    // mapping of created lists to their data path
+    "global": "path/to/your/data"
+  }
+}
+```
+<!---->
+<!-- - **Date Format**: Choose your preferred date format -->
+<!-- - **Priority Style**: Visual representation of priorities -->
+<!--   - `*/**/***` - Asterisks (*, **, ***) -->
+<!--   - `!/!!/!!!` - Exclamation marks (!, !!, !!!) -->
+<!--   - `1/2/3` - Numbers (1, 2, 3) -->
+<!--   - `none` - No priority indicators -->
 
 ## Examples
 
@@ -115,41 +128,49 @@ quiklist stores configuration in `~/.config/quiklist/config.json` including:
 ```bash
 # Initialize in a project
 cd my-project
-quiklist init
+quiklist create # or ql create
 
 # Add some tasks
-quiklist add "Implement user authentication"
-quiklist add "Write unit tests" --high
-quiklist add "Update documentation" --md
-quiklist add "Deploy to production" --deadline "2024-02-01"
+quiklist add "Implement user authentication" # or ql add
+quiklist add "Write unit tests" --h # or ql add
+quiklist add "Update documentation" -m # or ql add
+quiklist add "Deploy to production" -d "2024-02-01" # or ql add
 
 # View all items
-quiklist show
+quiklist show # or ql show
 
 # View only pending items
-quiklist show --unchecked
+quiklist show -u # or ql show
 
 # Mark completed tasks
-quiklist mark
+quiklist mark # or ql mark
 
 # Edit a task
-quiklist edit
+quiklist edit # or ql edit
 ```
 
-### Managing Lists across multiple projects
+### Managing Lists across multiple projects & using the global quiklist
 
 ```bash
 # working on project A
 cd project-A
 quiklist init
-quiklist add "Project A task 1, v important" --high
+quiklist add "Project A task 1, v important" --h
 quiklist add "Add documentation"
 
 # working on project B
 cd project-B
 quiklist init
-quiklist add "Project B task" --md
-quiklist add "some other task" --deadline "04-05-2025"
+quiklist add "Project B task" -m
+quiklist add "some other task" -d "04-05-2025"
+
+# working with global quiklist
+
+# Anywhere within home directory
+quiklist-global add "Global task" -m
+# or qlg add "Global task" -m
+# or quiklist add "Global task" -m -g
+# or ql add "Global task" -m -g
 ```
 
 ## Development
@@ -167,7 +188,7 @@ npm test            # Run tests
 ### Project Structure
 
 ```
-src/v1/
+src/v2/
 ├── commands/       # CLI command implementations
 ├── lib/            # Core library functions
 ├── types/          # TypeScript type definitions
