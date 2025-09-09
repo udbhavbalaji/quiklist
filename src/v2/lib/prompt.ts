@@ -1,25 +1,23 @@
 // External imports
-import z from "zod";
 import { err, ok } from "neverthrow";
 import { input, select, confirm, editor } from "@inquirer/prompts";
 import chalk from "chalk";
-import actionSelect, { Action } from "inquirer-honshin-select";
+import actionSelect from "inquirer-honshin-select";
 import { select as multiSelect, Separator } from "inquirer-select-pro";
 
 // Internal imports
 import { QLUserInputtedConfig } from "@v2/types/config";
 import {
   date_formats,
-  DateFormat,
   priority_styles,
-  PriorityStyle,
   sort_criteria,
   sort_orders,
+  DateFormat,
+  PriorityStyle,
 } from "@v2/types";
 import {
   QLGlobalListOptions,
   QLListBasicOptions,
-  QLListItem,
   QLListOption,
   QLPublicListConfig,
   priorities,
@@ -27,8 +25,7 @@ import {
 import { handlePromptError } from "@v2/lib/handle-error";
 import { pathValidator } from "@v2/lib/validator";
 import { formatDateFromISO, getFormattedItem } from "@v2/lib/helpers";
-import logger, { INFO_HEX, PANIC_HEX } from "@v2/lib/logger";
-import { configCommand } from "@v2/commands";
+import { INFO_HEX, PANIC_HEX } from "@v2/lib/logger";
 import {
   ActionSelectPromptArgs,
   ConfirmPromptArgs,
@@ -37,7 +34,6 @@ import {
   TextPromptArgs,
   TextPromptConfig,
 } from "@v2/types/prompt";
-import { da } from "zod/v4/locales/index.cjs";
 
 const constructListOptions = (
   itemOptions: Record<"checked" | "unchecked", QLListOption[]>,
@@ -180,7 +176,7 @@ export const getConfirmPrompt = async ({
   }
 };
 
-///////// Re writen Prompt Fns ////////////////////
+///////// Specific Prompt Fns ////////////////////
 
 export const userConfigChangePrompt = async (
   listConfig: QLPublicListConfig,
@@ -274,28 +270,6 @@ export const deleteListItemsPrompt = async (
   priorityStyle: PriorityStyle,
 ) => {
   const options = constructListOptions(itemOptions, dateFormat, priorityStyle);
-  // const options = [
-  //   chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
-  //   ...itemOptions.unchecked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(PANIC_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //     };
-  //   }),
-  //   chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
-  //   ...itemOptions.checked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(INFO_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //     };
-  //   }),
-  // ];
 
   const deletedItemsRes = await getMultiSelectPrompt({
     message: "Select the items you want to delete: ",
@@ -396,29 +370,6 @@ export const getItemToEditPrompt = async (
   priorityStyle: PriorityStyle,
 ) => {
   const choices = constructListOptions(itemOptions, dateFormat, priorityStyle);
-  // const choices = [
-  //   chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
-  //   ...itemOptions.unchecked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(PANIC_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //     };
-  //   }),
-  //   chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
-  //   ...itemOptions.checked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(INFO_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //       checked: true,
-  //     };
-  //   }),
-  // ];
 
   const actions = [
     {
@@ -458,28 +409,6 @@ export const getMarkedItemsPrompt = async (
   priorityStyle: PriorityStyle,
 ) => {
   const options = constructListOptions(itemOptions, dateFormat, priorityStyle);
-  // const options = [
-  //   chalk.hex(PANIC_HEX).bold("\n -- TODO -- "),
-  //   ...itemOptions.unchecked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(PANIC_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //     };
-  //   }),
-  //   chalk.hex(INFO_HEX).bold("\n -- COMPLETED -- "),
-  //   ...itemOptions.checked.map((item) => {
-  //     const { id, ...mainItem } = item;
-  //     return {
-  //       value: id,
-  //       name: chalk
-  //         .hex(INFO_HEX)
-  //         .bold(getFormattedItem(mainItem, dateFormat, priorityStyle, true)),
-  //     };
-  //   }),
-  // ];
 
   const originalSelectedItems = itemOptions.checked.map((item) => item.id);
 

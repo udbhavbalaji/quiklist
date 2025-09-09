@@ -6,7 +6,6 @@ import os from "os";
 // Internal imports
 import { createDir, saveConfig, saveList, saveMetadata } from "@v2/lib/file-io";
 import { QLCompleteConfig, QLUserInputtedConfig } from "@v2/types/config";
-// import { configurePrompt, globalListPrompt } from "@v2/lib/prompt";
 import { QLGlobalListOptions, QLList, QLListMetadata } from "@v2/types/list";
 import logger from "@v2/lib/logger";
 import {
@@ -34,7 +33,6 @@ const initGlobalConfig = async (configFilepath: string) => {
   };
 
   const configRes = await getQuiklistConfigPrompt(defaultConfig);
-  // const configRes = await configurePrompt(defaultConfig);
 
   if (configRes.isErr())
     return err({
@@ -58,7 +56,6 @@ const initGlobalConfig = async (configFilepath: string) => {
   const globalListOptionRes = await getGlobalListOptionsPrompt(
     defaultGlobalListOptions,
   );
-  // const globalListOptionRes = await globalListPrompt(defaultGlobalListOptions);
 
   if (globalListOptionRes.isErr())
     return err({

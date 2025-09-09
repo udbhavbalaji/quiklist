@@ -10,7 +10,6 @@ import {
   sortByPriority,
 } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
-// import { deleteListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 import { deleteListItemsPrompt } from "@v2/lib/prompt";
 
@@ -62,11 +61,6 @@ const deleteItems = async (
     dateFormat,
     priorityStyle,
   );
-  // const itemsDeletedRes = await deleteListItems(
-  //   itemOptions,
-  //   dateFormat,
-  //   priorityStyle,
-  // );
 
   if (itemsDeletedRes.isErr())
     return err({

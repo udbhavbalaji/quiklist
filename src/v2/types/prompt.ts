@@ -1,8 +1,5 @@
-import { select } from "@inquirer/prompts";
-import { Action } from "inquirer-honshin-select";
+import type { Action } from "inquirer-honshin-select";
 import { select as multiSelect } from "inquirer-select-pro";
-
-export type SelectChoice<T> = Parameters<typeof select>[0]["choices"];
 
 export type TextPromptConfig = {
   message: string;
@@ -47,9 +44,3 @@ export type ConfirmPromptArgs = {
   message: string;
   default: boolean;
 };
-
-// message: string,
-// useEditor: boolean,
-// required = false,
-// defaultValue?: string,
-// validate?: (value: string) => string | boolean | Promise<string | boolean>,

@@ -7,7 +7,6 @@ import { loadList, saveList } from "@v2/lib/file-io";
 import { Priority, QLListItem } from "@v2/types/list";
 import { AddItemToListOptions } from "@v2/types/commands";
 import { itemDescriptionPrompt } from "@v2/lib/prompt";
-// import { getItemDescription } from "@v2/lib/prompt";
 import { DateFormat } from "@v2/types";
 import { dateValidator } from "@v2/lib/validator";
 import { formatDateToISO } from "@v2/lib/helpers";
@@ -21,7 +20,6 @@ export const handleAddItemCommand = async (
   let itemDesc = item_desc.join(" ");
   if (itemDesc === "") {
     const itemDescRes = await itemDescriptionPrompt("Enter item description: ");
-    // const itemDescRes = await getItemDescription("Enter item description: ");
 
     if (itemDescRes.isErr())
       return err({

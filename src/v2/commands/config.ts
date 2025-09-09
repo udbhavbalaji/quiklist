@@ -9,9 +9,6 @@ import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
   getSingleSelectPrompt,
   getTextPrompt,
-  // getUserChangeInConfig,
-  // selectPrompt,
-  // textPrompt,
   userConfigChangePrompt,
 } from "@v2/lib/prompt";
 import {
@@ -67,9 +64,6 @@ export const modifyConfig = async (
   const userSelectedOptionToModify = await userConfigChangePrompt(
     publicDisplayedConfig,
   );
-  // const userSelectedOptionToModify = await getUserChangeInConfig(
-  //   publicDisplayedConfig,
-  // );
 
   if (userSelectedOptionToModify.isErr())
     return err({
@@ -93,11 +87,6 @@ export const modifyConfig = async (
       default: currentValue,
       useEditor: config.useEditorForUpdatingText,
     });
-    // const inputRes = await textPrompt(
-    //   `Enter the new value for '${selectedOption}': `,
-    //   currentValue,
-    //   config.useEditorForUpdatingText,
-    // );
 
     if (inputRes.isErr())
       return err({

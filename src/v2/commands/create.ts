@@ -45,7 +45,6 @@ const createList = async (
 
   if (!defaultFlag) {
     const createListPromptRes = await createNewListPrompt(defaultListOptions);
-    // const createListPromptRes = await createListPrompt(defaultListOptions);
 
     if (createListPromptRes.isErr())
       return err({
@@ -115,9 +114,6 @@ const createList = async (
     message: `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
     default: false,
   });
-  // const userWantsListTracked = await confirmPrompt(
-  //   `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
-  // );
 
   if (userWantsListTracked.isErr())
     return err({
@@ -155,7 +151,6 @@ export const syncList = async (
   };
 
   const listOptionsRes = await getGlobalListOptionsPrompt(defaultListOptions);
-  // const listOptionsRes = await globalListPrompt(defaultListOptions);
 
   if (listOptionsRes.isErr())
     return err({

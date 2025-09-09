@@ -109,7 +109,6 @@ const editItemDetails = async (
         selectedItem,
         useEditor,
       );
-      // const updatedItemRes = await getUpdatedItemText(selectedItem, useEditor);
 
       if (updatedItemRes.isErr())
         return err({
@@ -123,7 +122,6 @@ const editItemDetails = async (
     }
     case "priority": {
       const updatedItemRes = await getUpdatePriorityPrompt(selectedItem);
-      // const updatedItemRes = await getUpdatedItemPriority(selectedItem);
 
       if (updatedItemRes.isErr())
         return err({
@@ -140,10 +138,6 @@ const editItemDetails = async (
         selectedItem,
         dateFormat,
       );
-      // const updatedItemRes = await getUpdatedItemDeadline(
-      //   selectedItem,
-      //   dateFormat,
-      // );
 
       if (updatedItemRes.isErr())
         return err({

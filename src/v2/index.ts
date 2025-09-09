@@ -32,7 +32,6 @@ import showListItems from "@v2/commands/show";
 import markItems from "@v2/commands/mark";
 import deleteItems from "@v2/commands/delete";
 import editItemDetails from "@v2/commands/edit";
-// import { confirmPrompt } from "@v2/lib/prompt";
 import deleteList from "@v2/commands/delete-list";
 import { modifyConfig, showConfig } from "./commands/config";
 import { getConfirmPrompt } from "./lib/prompt";
@@ -46,8 +45,7 @@ export const launchQuiklist = (appVersion: string) => {
   const app = new Command("quiklist")
     .description("The fastest checklist app for the terminal.")
     .version(appVersion)
-    .alias("ql")
-    .action(() => app.help());
+    .alias("ql");
 
   if (!fs.existsSync(configFilepath)) {
     initAppCommand.action(async () =>
@@ -212,11 +210,6 @@ export const launchQuiklist = (appVersion: string) => {
             default: false,
           }),
         );
-        // const userConfirmed = await asyncErrorHandler(
-        //   confirmPrompt(
-        //     `Are you sure you want to delete '${metadata.name}'? This action cannot be undone.`,
-        //   ),
-        // );
         if (userConfirmed)
           return asyncErrorHandler(
             deleteList(
@@ -309,8 +302,7 @@ export const launchGlobalQuiklist = (appVersion: string) => {
   const app = new Command("quiklist-global")
     .alias("qlg")
     .description("The fastest checklist app for the terminal.")
-    .version(appVersion)
-    .action(() => app.help());
+    .version(appVersion);
 
   if (!fs.existsSync(configFilepath)) {
     initAppCommand.action(async () =>
