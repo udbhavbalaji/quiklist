@@ -2,29 +2,29 @@ import { Command } from "commander";
 import { err, ok } from "neverthrow";
 import chalk from "chalk";
 
-import { loadData } from "@/lib/file-io";
+import { loadData } from "@v1/lib/file-io";
 import logger, {
   DEBUG_HEX,
   ERROR_HEX,
   INFO_HEX,
   PANIC_HEX,
-} from "@/lib/logger";
-import { renderDate } from "@/lib/render";
+} from "@v1/lib/logger";
+import { renderDate } from "@v1/lib/render";
 import {
   ListItem,
   PriorityStyle,
   SortCriteria,
   SortOrder,
   styleMapping,
-} from "@/types/list";
-import { DateFormat } from "@/types";
+} from "@v1/types/list";
+import { DateFormat } from "@v1/types";
 import {
   sortByCreatedDate,
   sortByDeadline,
   sortByPriority,
   splitListItems,
-} from "@/lib/list";
-import { errorHandler } from "@/lib/error-handle";
+} from "@v1/lib/list";
+import { errorHandler } from "@v1/lib/error-handle";
 
 export const showItems = (
   filepath: string,

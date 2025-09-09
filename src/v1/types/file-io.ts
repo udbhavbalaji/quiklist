@@ -1,4 +1,4 @@
-import { QLCompleteConfig } from "@/types/config";
+import { QLCompleteConfig } from "@v1/types/config";
 
 export type FileInputTypes = QLCompleteConfig;
 

@@ -1,6 +1,7 @@
-import { DateFormat } from "@/types";
-import { LogLevel } from "@/types/logger";
 import { err, ok } from "neverthrow";
+
+import { DateFormat } from "@v1/types";
+import { LogLevel } from "@v1/types/logger";
 
 export const renderDate = (
   date: string,

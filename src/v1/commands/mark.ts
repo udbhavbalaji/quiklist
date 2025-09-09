@@ -1,10 +1,11 @@
-import { loadData, saveData } from "@/lib/file-io";
-import { splitListItems } from "@/lib/list";
-import logger from "@/lib/logger";
-import { itemsPrompt } from "@/lib/prompt";
-import { InternalListOption } from "@/types/list";
 import { Command } from "commander";
 import { err, ok } from "neverthrow";
+
+import { loadData, saveData } from "@v1/lib/file-io";
+import { splitListItems } from "@v1/lib/list";
+import logger from "@v1/lib/logger";
+import { itemsPrompt } from "@v1/lib/prompt";
+import { InternalListOption } from "@v1/types/list";
 
 export const markItemAsDone = async (datasetFilepath: string) => {
   const itemsRes = loadData(datasetFilepath);

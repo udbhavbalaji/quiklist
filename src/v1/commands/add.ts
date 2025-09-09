@@ -1,9 +1,9 @@
 import { Command } from "commander";
 
-import { ListItem, Priority } from "@/types/list";
-import { loadData, saveData } from "@/lib/file-io";
+import { ListItem, Priority } from "@v1/types/list";
+import { loadData, saveData } from "@v1/lib/file-io";
 import { err, ok } from "neverthrow";
-import logger from "@/lib/logger";
+import logger from "@v1/lib/logger";
 
 export const addToList = (
   dataFilepath: string,

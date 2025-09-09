@@ -1,6 +1,6 @@
 {
   "name": "quiklist",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -11,7 +11,11 @@
     "postbuild": "node postbuild.js",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["checklist", "command-line", "app"],
+  "keywords": [
+    "checklist",
+    "command-line",
+    "app"
+  ],
   "author": "Udbhav Balaji",
   "license": "MIT",
   "repository": {
@@ -24,7 +28,9 @@
   "homepage": "https://github.com/udbhavbalaji/quiklist/#readme",
   "bin": {
     "quiklist": "./dist/bin/quiklist.js",
-    "ql": "./dist/bin/quiklist.js"
+    "ql": "./dist/bin/quiklist.js",
+    "quiklist-global": "./dist/bin/quiklist-global.js",
+    "qlg": "./dist/bin/quiklist-global.js"
   },
   "files": [
     "dist/",
@@ -41,7 +47,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@udawg00/logify": "^0.0.7",
     "commander": "^14.0.0",
     "inquirer": "^12.9.1",
     "inquirer-honshin-select": "^0.0.4",

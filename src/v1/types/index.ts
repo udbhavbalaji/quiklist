@@ -1,4 +1,4 @@
-import { LogLevel } from "@/types/logger";
+import { LogLevel } from "@v1/types/logger";
 
 export const date_formats = ["DD-MM-YYYY", "YYYY-MM-DD"] as const;
 export type DateFormat = (typeof date_formats)[number];
