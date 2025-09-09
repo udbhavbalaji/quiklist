@@ -1,8 +1,8 @@
 import * as path from "path";
 import { err, ok } from "neverthrow";
-import { LogLevel } from "@udawg00/logify";
 
-import { QLCompleteConfig } from "@/types/config";
+import { QLCompleteConfig } from "@v1/types/config";
+import { LogLevel } from "@v1/types/logger";
 
 export const isProcessWithinCreatedList = (
   existingLists: QLCompleteConfig["lists"],

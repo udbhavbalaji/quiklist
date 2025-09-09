@@ -1,4 +1,4 @@
-import { InternalListOption, Priority, SortOrder } from "@/types/list";
+import { InternalListOption, Priority, SortOrder } from "@v1/types/list";
 
 export const splitListItems = (items: InternalListOption[]) => {
   const checkedItems: InternalListOption[] = [];

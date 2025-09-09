@@ -1,16 +1,27 @@
-import { loadMetadata, removeDir, saveConfig } from "@v1/lib/file-io";
-import { QLCompleteConfig } from "@v1/types/config";
-import { Command } from "commander";
+// External imports
 import { err, ok } from "neverthrow";
-import { errorHandler } from "@v1/lib/error-handle";
-import logger from "@v1/lib/logger";
 
-export const deleteList = async (
+// Internal imports
+import { loadMetadata, saveConfig } from "@v2/lib/file-io";
+import { QLCompleteConfig } from "@v2/types/config";
+import { removeDir } from "@v2/lib/file-io";
+import logger from "@v2/lib/logger";
+
+// function that deletes the specified quiklist
+const deleteList = async (
   metadataFilepath: string,
   config: QLCompleteConfig,
   configFilepath: string,
 ) => {
-  const { name } = errorHandler(loadMetadata(metadataFilepath));
+  const metadataRes = loadMetadata(metadataFilepath);
+
+  if (metadataRes.isErr())
+    return err({
+      ...metadataRes.error,
+      location: `${metadataRes.error.location} -> deleteList`,
+    });
+
+  const { name } = metadataRes.value;
 
   const { [name]: appDir, ...remainingLists } = config.lists;
 
@@ -35,13 +46,9 @@ export const deleteList = async (
       location: `${saveConfigRes.error.location} -> deleteList`,
     });
 
-  logger.info(`List '${name}' has been deleted!`);
+  logger.info(`'${name}' has been deleted.`);
 
   return ok();
 };
 
-const deleteListCommand = new Command("delete-list").description(
-  "Delete the currently created list.",
-);
-
-export default deleteListCommand;
+export default deleteList;

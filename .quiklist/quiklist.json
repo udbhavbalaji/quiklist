@@ -1,0 +1,76 @@
+{
+  "checked": [
+    {
+      "checked": true,
+      "description": "add config commands to view the current configuration",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:29.189Z",
+      "updatedAt": "2025-09-09T19:37:47.047Z"
+    },
+    {
+      "checked": true,
+      "description": "add config commands to modify the current configuration",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:46.100Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "make adding dir name to .gitignore optional",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:23:48.891Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "add syncing capability between systems, figure out how to detect an existing quiklist and use that instead of replacing the entire thing",
+      "priority": "HIGH",
+      "createdAt": "2025-09-03T21:48:32.948Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "make sure that the global list's name cannot be changed",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-03T16:37:43.468Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "rewrite the prompt functions with better abstraction",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-05T08:03:43.130Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "make using an editor for text input as an option in the main config",
+      "priority": "LOW",
+      "createdAt": "2025-09-02T21:23:12.628Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": true,
+      "description": "make sure that the updated time of only the updated fields are happening, looks like all items are getting new updated time all together whenever any change is made",
+      "priority": "HIGH",
+      "createdAt": "2025-09-09T19:34:37.679Z",
+      "updatedAt": "2025-09-09T19:43:15.640Z"
+    }
+  ],
+  "unchecked": [
+    {
+      "checked": false,
+      "description": "create consolidated command to handle all possible scenarios through ql/qlg",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:05.155Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    },
+    {
+      "checked": false,
+      "description": "add email service, both sending to send and others (maybe)",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-02T21:22:41.463Z",
+      "updatedAt": "2025-09-09T19:37:47.048Z"
+    }
+  ]
+}
