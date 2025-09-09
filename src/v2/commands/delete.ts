@@ -10,8 +10,9 @@ import {
   sortByPriority,
 } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
-import { deleteListItems } from "@v2/lib/prompt";
+// import { deleteListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
+import { deleteListItemsPrompt } from "@v2/lib/prompt";
 
 // function that deletes items from the specified quiklist
 const deleteItems = async (
@@ -56,11 +57,16 @@ const deleteItems = async (
     }
   }
 
-  const itemsDeletedRes = await deleteListItems(
+  const itemsDeletedRes = await deleteListItemsPrompt(
     itemOptions,
     dateFormat,
     priorityStyle,
   );
+  // const itemsDeletedRes = await deleteListItems(
+  //   itemOptions,
+  //   dateFormat,
+  //   priorityStyle,
+  // );
 
   if (itemsDeletedRes.isErr())
     return err({

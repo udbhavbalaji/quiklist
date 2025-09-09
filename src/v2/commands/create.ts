@@ -11,9 +11,9 @@ import {
   QLListMetadata,
 } from "@v2/types/list";
 import {
-  confirmPrompt,
-  createListPrompt,
-  globalListPrompt,
+  createNewListPrompt,
+  getConfirmPrompt,
+  getGlobalListOptionsPrompt,
 } from "@v2/lib/prompt";
 import {
   addToGitIgnore,
@@ -44,7 +44,8 @@ const createList = async (
   let chosenListOptions: QLGlobalListOptions & QLListBasicOptions;
 
   if (!defaultFlag) {
-    const createListPromptRes = await createListPrompt(defaultListOptions);
+    const createListPromptRes = await createNewListPrompt(defaultListOptions);
+    // const createListPromptRes = await createListPrompt(defaultListOptions);
 
     if (createListPromptRes.isErr())
       return err({
@@ -110,9 +111,13 @@ const createList = async (
       location: `${saveConfigRes.error.location} -> createList`,
     });
 
-  const userWantsListTracked = await confirmPrompt(
-    `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
-  );
+  const userWantsListTracked = await getConfirmPrompt({
+    message: `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
+    default: false,
+  });
+  // const userWantsListTracked = await confirmPrompt(
+  //   `Do you want to track '${listMetadata.name}' through git? (If not, quiklist's directory will be added to .gitignore)`,
+  // );
 
   if (userWantsListTracked.isErr())
     return err({
@@ -149,7 +154,8 @@ export const syncList = async (
     sortOrder: globalMetadata.sortOrder,
   };
 
-  const listOptionsRes = await globalListPrompt(defaultListOptions);
+  const listOptionsRes = await getGlobalListOptionsPrompt(defaultListOptions);
+  // const listOptionsRes = await globalListPrompt(defaultListOptions);
 
   if (listOptionsRes.isErr())
     return err({

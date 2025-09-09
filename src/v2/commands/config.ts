@@ -7,9 +7,12 @@ import { renameListFile, saveConfig, saveMetadata } from "@v2/lib/file-io";
 import { getFormattedJSON } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
-  getUserChangeInConfig,
-  selectPrompt,
-  textPrompt,
+  getSingleSelectPrompt,
+  getTextPrompt,
+  // getUserChangeInConfig,
+  // selectPrompt,
+  // textPrompt,
+  userConfigChangePrompt,
 } from "@v2/lib/prompt";
 import {
   date_formats,
@@ -61,9 +64,12 @@ export const modifyConfig = async (
     useEditorForUpdatingText: config.useEditorForUpdatingText,
   };
 
-  const userSelectedOptionToModify = await getUserChangeInConfig(
+  const userSelectedOptionToModify = await userConfigChangePrompt(
     publicDisplayedConfig,
   );
+  // const userSelectedOptionToModify = await getUserChangeInConfig(
+  //   publicDisplayedConfig,
+  // );
 
   if (userSelectedOptionToModify.isErr())
     return err({
@@ -82,11 +88,16 @@ export const modifyConfig = async (
   let updatedValue: typeof currentValue;
 
   if (text_input_options.includes(selectedOption)) {
-    const inputRes = await textPrompt(
-      `Enter the new value for '${selectedOption}': `,
-      currentValue,
-      config.useEditorForUpdatingText,
-    );
+    const inputRes = await getTextPrompt({
+      message: `Enter the new value for '${selectedOption}': `,
+      default: currentValue,
+      useEditor: config.useEditorForUpdatingText,
+    });
+    // const inputRes = await textPrompt(
+    //   `Enter the new value for '${selectedOption}': `,
+    //   currentValue,
+    //   config.useEditorForUpdatingText,
+    // );
 
     if (inputRes.isErr())
       return err({
@@ -104,11 +115,16 @@ export const modifyConfig = async (
       useEditorForUpdatingText: ["Yes", "No"] as const,
     };
 
-    const selectRes = await selectPrompt(
-      `Select new value for '${selectedOption}': `,
-      choiceMapping[selectedOption as keyof typeof choiceMapping],
-      currentValue,
-    );
+    const selectRes = await getSingleSelectPrompt({
+      message: `Select new value for '${selectedOption}': `,
+      choices: choiceMapping[selectedOption as keyof typeof choiceMapping],
+      default:
+        selectedOption === "useEditorForUpdatingText"
+          ? currentValue === "true"
+            ? "Yes"
+            : "No"
+          : currentValue,
+    });
 
     if (selectRes.isErr())
       return err({

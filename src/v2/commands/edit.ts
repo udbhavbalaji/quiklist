@@ -12,10 +12,10 @@ import {
 } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
 import {
-  editItemPrompt,
-  getUpdatedItemText,
-  getUpdatedItemDeadline,
-  getUpdatedItemPriority,
+  getItemToEditPrompt,
+  getUpdatedDeadlinePrompt,
+  getUpdatedDescriptionPrompt,
+  getUpdatePriorityPrompt,
 } from "@v2/lib/prompt";
 import { dateValidator } from "@v2/lib/validator";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
@@ -64,11 +64,16 @@ const editItemDetails = async (
     }
   }
 
-  const editItemDetailsRes = await editItemPrompt(
+  const editItemDetailsRes = await getItemToEditPrompt(
     itemOptions,
     dateFormat,
     priorityStyle,
   );
+  // const editItemDetailsRes = await editItemPrompt(
+  //   itemOptions,
+  //   dateFormat,
+  //   priorityStyle,
+  // );
 
   if (editItemDetailsRes.isErr())
     return err({
@@ -100,7 +105,11 @@ const editItemDetails = async (
 
   switch (action) {
     case "item": {
-      const updatedItemRes = await getUpdatedItemText(selectedItem, useEditor);
+      const updatedItemRes = await getUpdatedDescriptionPrompt(
+        selectedItem,
+        useEditor,
+      );
+      // const updatedItemRes = await getUpdatedItemText(selectedItem, useEditor);
 
       if (updatedItemRes.isErr())
         return err({
@@ -113,7 +122,8 @@ const editItemDetails = async (
       break;
     }
     case "priority": {
-      const updatedItemRes = await getUpdatedItemPriority(selectedItem);
+      const updatedItemRes = await getUpdatePriorityPrompt(selectedItem);
+      // const updatedItemRes = await getUpdatedItemPriority(selectedItem);
 
       if (updatedItemRes.isErr())
         return err({
@@ -126,10 +136,14 @@ const editItemDetails = async (
       break;
     }
     case "deadline": {
-      const updatedItemRes = await getUpdatedItemDeadline(
+      const updatedItemRes = await getUpdatedDeadlinePrompt(
         selectedItem,
         dateFormat,
       );
+      // const updatedItemRes = await getUpdatedItemDeadline(
+      //   selectedItem,
+      //   dateFormat,
+      // );
 
       if (updatedItemRes.isErr())
         return err({

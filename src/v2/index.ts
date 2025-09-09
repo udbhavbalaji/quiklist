@@ -32,9 +32,10 @@ import showListItems from "@v2/commands/show";
 import markItems from "@v2/commands/mark";
 import deleteItems from "@v2/commands/delete";
 import editItemDetails from "@v2/commands/edit";
-import { confirmPrompt } from "@v2/lib/prompt";
+// import { confirmPrompt } from "@v2/lib/prompt";
 import deleteList from "@v2/commands/delete-list";
 import { modifyConfig, showConfig } from "./commands/config";
+import { getConfirmPrompt } from "./lib/prompt";
 
 // module-level vars
 const configDir = path.join(os.homedir(), ".config", "quiklist");
@@ -206,10 +207,16 @@ export const launchQuiklist = (appVersion: string) => {
       .description(`Delete '${metadata.name}'.`)
       .action(async () => {
         const userConfirmed = await asyncErrorHandler(
-          confirmPrompt(
-            `Are you sure you want to delete '${metadata.name}'? This action cannot be undone.`,
-          ),
+          getConfirmPrompt({
+            message: `Are you sure you want to delete '${metadata.name}'? This action cannot be undone.`,
+            default: false,
+          }),
         );
+        // const userConfirmed = await asyncErrorHandler(
+        //   confirmPrompt(
+        //     `Are you sure you want to delete '${metadata.name}'? This action cannot be undone.`,
+        //   ),
+        // );
         if (userConfirmed)
           return asyncErrorHandler(
             deleteList(

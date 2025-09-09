@@ -10,9 +10,10 @@ import {
   sortByPriority,
 } from "@v2/lib/helpers";
 import logger, { DEBUG_HEX } from "@v2/lib/logger";
-import { markListItems } from "@v2/lib/prompt";
+// import { markListItems } from "@v2/lib/prompt";
 import { DateFormat, PriorityStyle, SortCriteria, SortOrder } from "@v2/types";
 import { QLListItem, QLListOption } from "@v2/types/list";
+import { getMarkedItemsPrompt } from "@v2/lib/prompt";
 
 // function that marks/unmarks item(s) as completed within the specified quiklist
 const markItems = async (
@@ -57,11 +58,16 @@ const markItems = async (
     }
   }
 
-  const itemsChangedRes = await markListItems(
+  const itemsChangedRes = await getMarkedItemsPrompt(
     itemOptions,
     dateFormat,
     priorityStyle,
   );
+  // const itemsChangedRes = await markListItems(
+  //   itemOptions,
+  //   dateFormat,
+  //   priorityStyle,
+  // );
 
   if (itemsChangedRes.isErr())
     return err({
