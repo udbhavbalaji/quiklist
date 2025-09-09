@@ -132,16 +132,8 @@ const mutateList = (
         updatedAt: new Date().toISOString(),
       });
     } else {
-      if (mainItem.checked)
-        updatedList.checked.push({
-          ...mainItem,
-          updatedAt: new Date().toISOString(),
-        });
-      else
-        updatedList.unchecked.push({
-          ...mainItem,
-          updatedAt: new Date().toISOString(),
-        });
+      if (mainItem.checked) updatedList.checked.push(mainItem);
+      else updatedList.unchecked.push(mainItem);
     }
   });
 
