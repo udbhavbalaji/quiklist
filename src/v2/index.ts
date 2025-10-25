@@ -129,7 +129,7 @@ export const launchQuiklist = (appVersion: string) => {
           options.global
             ? globalMetadata.datasetFilepath
             : metadata.datasetFilepath,
-          options.unchecked,
+          options.u,
           config.dateFormat,
           options.global
             ? globalMetadata.priorityStyle
@@ -353,19 +353,19 @@ export const launchGlobalQuiklist = (appVersion: string) => {
     // show command
     showCommand
       .description("Show items in your global quiklist.")
-      .action(async (options) => {
-        return asyncErrorHandler(
+      .action(async (options) =>
+        asyncErrorHandler(
           showListItems(
             globalMetadata.datasetFilepath,
-            options.unchecked,
+            options.u,
             config.dateFormat,
             globalMetadata.priorityStyle,
             globalMetadata.sortCriteria,
             globalMetadata.sortOrder,
             globalMetadata.name,
           ),
-        );
-      });
+        ),
+      );
 
     // mark command
     markCommand

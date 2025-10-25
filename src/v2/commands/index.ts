@@ -13,7 +13,7 @@ export const addCommand = new Command("add");
 export const showCommand = new Command("show")
   .description("Show the items in this checklist.")
   .option(
-    "-u [unchecked]",
+    "-u, [unchecked]",
     "Only show the unchecked items in the list.",
     false,
   );
