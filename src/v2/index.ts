@@ -123,13 +123,28 @@ export const launchQuiklist = (appVersion: string) => {
       });
 
     // show command
-    showCommand.action(async (options) =>
-      asyncErrorHandler(
+    if (config.showUncheckedItemsOnly) {
+      showCommand.option(
+        "-c, --checked",
+        "Show items completed in the quiklist.",
+        false,
+      );
+    } else {
+      showCommand.option(
+        "-u, --unchecked",
+        "Show incomplete items in the quiklist",
+        false,
+      );
+    }
+
+    showCommand.action(async (options) => {
+      return asyncErrorHandler(
         showListItems(
           options.global
             ? globalMetadata.datasetFilepath
             : metadata.datasetFilepath,
-          options.u,
+          // options.u,
+          config.showUncheckedItemsOnly ? !options.checked : options.unchecked,
           config.dateFormat,
           options.global
             ? globalMetadata.priorityStyle
@@ -138,8 +153,8 @@ export const launchQuiklist = (appVersion: string) => {
           options.global ? globalMetadata.sortOrder : metadata.sortOrder,
           options.global ? globalMetadata.name : metadata.name,
         ),
-      ),
-    );
+      );
+    });
 
     // mark command
     markCommand.action(async (options) =>
@@ -351,21 +366,36 @@ export const launchGlobalQuiklist = (appVersion: string) => {
       });
 
     // show command
+    if (config.showUncheckedItemsOnly) {
+      showCommand.option(
+        "-c, --checked",
+        "Show items completed in the quiklist.",
+        false,
+      );
+    } else {
+      showCommand.option(
+        "-u, --unchecked",
+        "Show incomplete items in the quiklist",
+        false,
+      );
+    }
+
     showCommand
       .description("Show items in your global quiklist.")
-      .action(async (options) =>
-        asyncErrorHandler(
+      .action(async (options) => {
+        return asyncErrorHandler(
           showListItems(
             globalMetadata.datasetFilepath,
-            options.u,
+            // options.u,
+            config.showUncheckedItemsOnly ? !options.c : options.u,
             config.dateFormat,
             globalMetadata.priorityStyle,
             globalMetadata.sortCriteria,
             globalMetadata.sortOrder,
             globalMetadata.name,
           ),
-        ),
-      );
+        );
+      });
 
     // mark command
     markCommand

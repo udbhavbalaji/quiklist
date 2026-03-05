@@ -30,6 +30,7 @@ const initGlobalConfig = async (configFilepath: string) => {
     userName: "John Doe",
     dateFormat: "DD-MM-YYYY",
     useEditorForUpdatingText: false,
+    showUncheckedItemsOnly: false,
   };
 
   const configRes = await getQuiklistConfigPrompt(defaultConfig);

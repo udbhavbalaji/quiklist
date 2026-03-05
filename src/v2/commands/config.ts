@@ -33,6 +33,7 @@ export const showConfig = (
     sortOrder: metadata.sortOrder,
     dateFormat: config.dateFormat,
     useEditorForUpdates: config.useEditorForUpdatingText,
+    showUncheckedItemsOnly: config.showUncheckedItemsOnly,
   };
   logger.hex(
     DEBUG_HEX,
@@ -59,6 +60,7 @@ export const modifyConfig = async (
     sortOrder: metadata.sortOrder,
     dateFormat: config.dateFormat,
     useEditorForUpdatingText: config.useEditorForUpdatingText,
+    showUncheckedItemsOnly: config.showUncheckedItemsOnly,
   };
 
   const userSelectedOptionToModify = await userConfigChangePrompt(
@@ -75,7 +77,12 @@ export const modifyConfig = async (
   const selectedOption = splitSetting[0];
   const currentValue = splitSetting[1];
 
-  const config_options = ["userName", "dateFormat", "useEditorForUpdatingText"];
+  const config_options = [
+    "userName",
+    "dateFormat",
+    "useEditorForUpdatingText",
+    "showUncheckedItemsOnly",
+  ];
 
   const text_input_options = ["listName", "userName"];
 
@@ -102,13 +109,15 @@ export const modifyConfig = async (
       sortOrder: sort_orders,
       dateFormat: date_formats,
       useEditorForUpdatingText: ["Yes", "No"] as const,
+      showUncheckedItemsOnly: ["Yes", "No"] as const,
     };
 
     const selectRes = await getSingleSelectPrompt({
       message: `Select new value for '${selectedOption}': `,
       choices: choiceMapping[selectedOption as keyof typeof choiceMapping],
       default:
-        selectedOption === "useEditorForUpdatingText"
+        selectedOption === "useEditorForUpdatingText" ||
+        selectedOption === "showUncheckedItemsOnly"
           ? currentValue === "true"
             ? "Yes"
             : "No"
@@ -128,10 +137,15 @@ export const modifyConfig = async (
     const updatedConfig =
       selectedOption === "useEditorForUpdatingText"
         ? {
-          ...config,
-          useEditorForUpdatingText: updatedValue === "Yes" ? true : false,
-        }
-        : { ...config, [selectedOption]: updatedValue };
+            ...config,
+            useEditorForUpdatingText: updatedValue === "Yes" ? true : false,
+          }
+        : selectedOption === "showUncheckedItemsOnly"
+          ? {
+              ...config,
+              showUncheckedItemsOnly: updatedValue === "Yes" ? true : false,
+            }
+          : { ...config, [selectedOption]: updatedValue };
 
     const saveConfigRes = saveConfig(updatedConfig, configFilepath);
 
