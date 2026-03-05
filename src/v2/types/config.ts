@@ -4,6 +4,7 @@ export type QLUserInputtedConfig = {
   userName: string;
   dateFormat: DateFormat;
   useEditorForUpdatingText: boolean;
+  showUncheckedItemsOnly: boolean;
 };
 
 export type QLCompleteConfig = QLUserInputtedConfig & {
