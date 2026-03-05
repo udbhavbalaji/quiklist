@@ -37,6 +37,13 @@
     },
     {
       "checked": true,
+      "description": "fix the unchecked option in the show command",
+      "priority": "HIGH",
+      "createdAt": "2025-10-16T15:09:59.799Z",
+      "updatedAt": "2025-10-25T05:28:25.256Z"
+    },
+    {
+      "checked": true,
       "description": "make sure that the global list's name cannot be changed",
       "priority": "MEDIUM",
       "createdAt": "2025-09-03T16:37:43.468Z",
@@ -51,6 +58,13 @@
     },
     {
       "checked": true,
+      "description": "update readme to v2 commands and functionality",
+      "priority": "MEDIUM",
+      "createdAt": "2025-09-09T23:36:06.325Z",
+      "updatedAt": "2025-09-09T23:36:20.422Z"
+    },
+    {
+      "checked": true,
       "description": "make using an editor for text input as an option in the main config",
       "priority": "LOW",
       "createdAt": "2025-09-02T21:23:12.628Z",
@@ -58,33 +72,26 @@
     },
     {
       "checked": true,
-      "description": "update readme to v2 commands and functionality",
-      "priority": "MEDIUM",
-      "createdAt": "2025-09-09T23:36:06.325Z",
-      "updatedAt": "2025-09-09T23:36:20.422Z"
+      "description": "create consolidated command to handle all possible scenarios through ql/qlg",
+      "priority": "HIGH",
+      "createdAt": "2025-09-02T21:21:05.155Z",
+      "updatedAt": "2026-03-05T00:07:44.236Z"
     }
   ],
   "unchecked": [
     {
       "checked": false,
-      "description": "create consolidated command to handle all possible scenarios through ql/qlg",
+      "description": "add unchecked flag to config and modify available command args for show command allowing user config on how they prefer to see their items",
       "priority": "HIGH",
-      "createdAt": "2025-09-02T21:21:05.155Z",
-      "updatedAt": "2025-09-09T19:37:47.048Z"
+      "createdAt": "2025-10-28T05:26:22.190Z",
+      "updatedAt": "2025-10-28T05:26:22.190Z"
     },
     {
       "checked": false,
-      "description": "add email service, both sending to send and others (maybe)",
+      "description": "add email service, both sending to self and others (maybe)",
       "priority": "MEDIUM",
       "createdAt": "2025-09-02T21:22:41.463Z",
-      "updatedAt": "2025-09-09T19:37:47.048Z"
-    },
-    {
-      "checked": false,
-      "description": "fix the unchecked option in the show command",
-      "priority": "HIGH",
-      "createdAt": "2025-10-16T15:09:59.799Z",
-      "updatedAt": "2025-10-16T15:09:59.808Z"
+      "updatedAt": "2025-12-23T05:51:44.739Z"
     }
   ]
 }

@@ -464,10 +464,10 @@ export const getGlobalListOptionsPrompt = async (
   const sortOrderRes =
     sortCriteriaRes.value !== "none"
       ? await getSingleSelectPrompt({
-        message: "Sort ordering: ",
-        default: defaultGlobalListOptions.sortOrder,
-        choices: sort_orders,
-      })
+          message: "Sort ordering: ",
+          default: defaultGlobalListOptions.sortOrder,
+          choices: sort_orders,
+        })
       : ok(defaultGlobalListOptions.sortOrder);
   if (sortOrderRes.isErr())
     return err({
@@ -520,9 +520,22 @@ export const getQuiklistConfigPrompt = async (
       location: `${useEditorRes.error.location} -> getQuiklistConfigPrompt:useEditor`,
     });
 
+  const showUcheckedItemsOnlyRes = await getConfirmPrompt({
+    message:
+      "Do you want to show only incomplete items in your quiklist by default? (This can be changed anytime in the future & can be altered per use.)",
+    default: defaultConfig.showUncheckedItemsOnly,
+  });
+
+  if (showUcheckedItemsOnlyRes.isErr())
+    return err({
+      ...showUcheckedItemsOnlyRes.error,
+      location: `${showUcheckedItemsOnlyRes.error.location} -> getQuiklistConfigPrompt:useEditor`,
+    });
+
   return ok({
     userName: userNameRes.value,
     dateFormat: dateFormatRes.value,
     useEditorForUpdatingText: useEditorRes.value,
+    showUncheckedItemsOnly: showUcheckedItemsOnlyRes.value,
   });
 };

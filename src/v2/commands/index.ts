@@ -10,13 +10,14 @@ export const createListCommand = new Command("create")
   .description("Create a new quiklist in the current directory.")
   .option("-y", "Create the list with the default options.", false);
 export const addCommand = new Command("add");
-export const showCommand = new Command("show")
-  .description("Show the items in this checklist.")
-  .option(
-    "-u [unchecked]",
-    "Only show the unchecked items in the list.",
-    false,
-  );
+export const showCommand = new Command("show").description(
+  "Show the items in this checklist.",
+);
+// .option(
+//   "-u, [unchecked]",
+//   "Only show the unchecked items in the list.",
+//   false,
+// );
 export const markCommand = new Command("mark").description(
   "Mark/Unmark item(s).",
 );
